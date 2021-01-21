@@ -1,0 +1,15 @@
+{
+    "Permissions": "Permissions",
+    "Invite a user": "Invite a user",
+    "Invite": "Invite",
+    "Invited": "Invited",
+    "Joined": "Member",
+    "User invited": "User invited",
+    "Thank you for using our application":"Thank you for using our application!",
+    "Activate my membership": "Activate my membership",
+    "Hello user": "Hello :name",
+    "Welcome user": "Welcome :name",
+    "Invitation line 1": ":author invited you to join on :team",
+    "Invitation line 2": "Please click on url below to activate your membership, your temporary password will be: :password",
+    "Welcome line 1": "You now have access to :team, a suite of tools for managing contacts and phone numbers. Use the your email and password to access."
+}

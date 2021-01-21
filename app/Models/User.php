@@ -2,14 +2,27 @@
 
 namespace App\Models;
 
+use App\Pivots\TeamUser;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Nova\Actions\Actionable;
 
+/**
+ * Class User
+ *
+ * @package App\Models
+ * @property-read int $id
+ * @property string $name
+ * @property string $email
+ * @property string $password
+ * @property int $invited_by_user_id
+ * @property-read TeamUser $membership
+ */
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, Actionable;
 
     /**
      * The attributes that are mass assignable.
@@ -20,6 +33,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'invited_by_user_id'
     ];
 
     /**
@@ -40,4 +54,12 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function teams() {
+        return $this
+            ->belongsToMany(Team::class)
+            ->withTimestamps()
+            ->using(TeamUser::class)
+            ->as('membership');
+    }
 }

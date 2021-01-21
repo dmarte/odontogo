@@ -147,6 +147,13 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        'name'=> 'Name',
+        'user_id'=> 'User',
+        'email'=> 'E-mail',
+        'teams'=> 'Teams',
+        'status'=> 'Status',
+        'invited_at'=>'Invited at',
+    ],
 
 ];
