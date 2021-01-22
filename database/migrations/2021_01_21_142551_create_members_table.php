@@ -1,13 +1,14 @@
 <?php
 
+use App\Models\Role;
 use App\Models\Team;
 use App\Models\User;
-use App\Pivots\TeamUser;
+use App\Models\Member;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTeamUserTable extends Migration
+class CreateMembersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -16,7 +17,7 @@ class CreateTeamUserTable extends Migration
      */
     public function up()
     {
-        Schema::create('team_user', function (Blueprint $table) {
+        Schema::create('members', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class, 'author_user_id');
             $table->foreignIdFor(Team::class)
@@ -25,11 +26,12 @@ class CreateTeamUserTable extends Migration
             $table->foreignIdFor(User::class)
                 ->cascadeOnUpdate()
                 ->cascadeOnDeletete();
-            $table->json('scopes');
-            $table->string('status', 40)->default(TeamUser::STATUS_INVITED);
+            $table->foreignIdFor(Role::class);
+            $table->string('status', 40)->default(Member::STATUS_INVITED);
             $table->string('token')->unique();
             $table->dateTime('invited_at');
             $table->dateTime('joined_at')->nullable();
+            $table->boolean('is_team_owner');
             $table->timestamps();
         });
     }
@@ -41,6 +43,6 @@ class CreateTeamUserTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('team_user');
+        Schema::dropIfExists('members');
     }
 }

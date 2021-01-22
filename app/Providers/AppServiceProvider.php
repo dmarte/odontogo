@@ -5,9 +5,9 @@ namespace App\Providers;
 use App\Models\Team;
 use App\Models\User;
 use App\Observers\TeamObserver;
-use App\Observers\TeamUserObserver;
+use App\Observers\MemberObserver;
 use App\Observers\UserObserver;
-use App\Pivots\TeamUser;
+use App\Models\Member;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -31,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
     {
         //
         Team::observe(TeamObserver::class);
-        TeamUser::observe(TeamUserObserver::class);
+        Member::observe(MemberObserver::class);
         User::observe(UserObserver::class);
     }
 }

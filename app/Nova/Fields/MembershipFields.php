@@ -5,18 +5,18 @@ namespace App\Nova\Fields;
 
 
 use App\Models\User;
-use App\Pivots\TeamUser;
+use App\Models\Member;
 use Illuminate\Support\Collection;
 use Laravel\Nova\Fields\Badge;
 use Laravel\Nova\Fields\BooleanGroup;
 use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class TeamUserFields
+class MembershipFields
 {
     public function permissions(): Collection
     {
-        return TeamUser::scopesAsOptions();
+        return Member::scopesAsOptions();
     }
 
     public function __invoke(): array
@@ -24,10 +24,11 @@ class TeamUserFields
         return [
             Badge::make(__('validation.attributes.status'), 'status')
                 ->types([
-                    TeamUser::STATUS_JOINED  => 'bg-success text-white',
-                    TeamUser::STATUS_INVITED => 'bg-warning text-black',
+                    Member::STATUS_JOINED  => 'bg-success text-white',
+                    Member::STATUS_INVITED => 'bg-warning text-black',
                 ])
-                ->labels(TeamUser::statusesAsOptions()->toArray()),
+                ->labels(Member::statusesAsOptions()->toArray())
+            ,
             Date::make(__('validation.attributes.invited_at'), 'invited_at')
                 ->format('LLL')
                 ->hideWhenUpdating()

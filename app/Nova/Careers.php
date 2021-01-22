@@ -2,21 +2,25 @@
 
 namespace App\Nova;
 
+use App\Models\Attribute;
 use Illuminate\Http\Request;
-use Laravel\Nova\Fields\Gravatar;
-use Laravel\Nova\Fields\HasManyThrough;
+use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\Boolean;
+use Laravel\Nova\Fields\Hidden;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Password;
 use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\Textarea;
+use Laravel\Nova\Http\Requests\NovaRequest;
 
-class User extends Resource
+class Careers extends Resource
 {
+    const KIND = Attribute::KIND_CAREER;
     /**
      * The model the resource corresponds to.
      *
      * @var string
      */
-    public static $model = \App\Models\User::class;
+    public static $model = Attribute::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -25,18 +29,15 @@ class User extends Resource
      */
     public static $title = 'name';
 
-    public static $displayInNavigation = false;
-    public static $searchable = false;
     /**
      * The columns that should be searched.
      *
      * @var array
      */
     public static $search = [
-        'id',
         'name',
-        'email',
     ];
+    public static $displayInNavigation = false;
 
     /**
      * Get the fields displayed by the resource.
@@ -48,26 +49,20 @@ class User extends Resource
     public function fields(Request $request)
     {
         return [
-            ID::make()->onlyOnDetail(),
-
-            Gravatar::make()->maxWidth(50)->onlyOnDetail(),
-
-            Text::make('Name')
-                ->sortable()
-                ->rules('required', 'max:255'),
-
-            Text::make('Email')
-                ->hideFromIndex()
-                ->rules('required', 'email', 'max:254')
-                ->creationRules('unique:users,email')
-                ->updateRules('unique:users,email,{{resourceId}}'),
-
-            Password::make('Password')
+            ID::make(__('ID'), 'id')->sortable(),
+            Text::make(__('validation.attributes.name'), 'name')
+            ->creationRules([
+                'required',
+                'min:4'
+            ]),
+            Textarea::make(__('validation.attributes.description'), 'description'),
+            BelongsTo::make(__('validation.attributes.team_id'), 'team', Team::class)
+                ->default(fn(NovaRequest $request) => $request->user()->team_id),
+            Boolean::make(__('validation.attributes.enabled'), 'enabled')
+                ->default(fn() => true),
+            Hidden::make('kind')
                 ->onlyOnForms()
-                ->creationRules('required', 'string', 'min:8')
-                ->updateRules('nullable', 'string', 'min:8'),
-
-            HasManyThrough::make(__('validation.attributes.teams'), 'teams', Team::class),
+                ->default(fn() => self::KIND),
         ];
     }
 

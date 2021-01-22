@@ -2,24 +2,25 @@
 
 namespace App\Nova;
 
-use App\Nova\Actions\UserInvitationAction;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\Attribute;
 use Illuminate\Http\Request;
-use Laravel\Nova\Fields\HasMany;
+use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\Hidden;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Http\Requests\ActionRequest;
+use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class Team extends Resource
+class Source extends Resource
 {
+    public static $searchable = false;
     /**
      * The model the resource corresponds to.
      *
      * @var string
      */
-    public static $model = \App\Models\Team::class;
+    public static $model = Attribute::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -27,8 +28,6 @@ class Team extends Resource
      * @var string
      */
     public static $title = 'name';
-
-    public static $searchable = false;
 
     /**
      * The columns that should be searched.
@@ -39,20 +38,6 @@ class Team extends Resource
         'name',
     ];
 
-    public static function indexQuery(NovaRequest $request, $query)
-    {
-        return $query->whereHas('members', function (Builder $builder) use ($request) {
-            $builder->where('user_id', $request->user()->id);
-        });
-    }
-
-    public static function relatableQuery(NovaRequest $request, $query)
-    {
-        return $query->whereHas('members', function (Builder $builder) use ($request) {
-            $builder->where('user_id', $request->user()->id);
-        });
-    }
-
     public static function group()
     {
         return __('Administration');
@@ -60,9 +45,14 @@ class Team extends Resource
 
     public static function label()
     {
-        return __('Teams');
+        return __('Sources');
     }
-    
+
+    public static function singularLabel()
+    {
+        return __('Source');
+    }
+
     /**
      * Get the fields displayed by the resource.
      *
@@ -74,9 +64,19 @@ class Team extends Resource
     {
         return [
             ID::make(__('ID'), 'id')->sortable(),
-            Text::make(__('validation.attributes.name')),
-            HasMany::make(__('validation.attributes.user_id'), 'members', Member::class),
-            Hidden::make('user_id')->default($request->user()->id)->onlyOnForms(),
+            Text::make(__('validation.attributes.name'), 'name')
+                ->creationRules([
+                    'required',
+                    'min:4',
+                ]),
+            Textarea::make(__('validation.attributes.description'), 'description'),
+            BelongsTo::make(__('validation.attributes.team_id'), 'team', Team::class)
+                ->default(fn(NovaRequest $request) => $request->user()->team_id),
+            Boolean::make(__('validation.attributes.enabled'), 'enabled')
+                ->default(fn() => true),
+            Hidden::make('kind')
+                ->onlyOnForms()
+                ->default(fn() => Attribute::KIND_ADS_SOURCE),
         ];
     }
 
@@ -125,23 +125,6 @@ class Team extends Resource
      */
     public function actions(Request $request)
     {
-        return [
-            (new UserInvitationAction($this->resource))
-                ->confirmButtonText(__('Invite'))
-                ->cancelButtonText(__('Cancel'))
-                ->onlyOnDetail()
-                ->showOnTableRow()
-                ->canSee(function ($request) {
-                    if ($request instanceof ActionRequest) {
-                        return true;
-                    }
-
-                    if (!$this->resource instanceof \App\Models\Team) {
-                        return false;
-                    }
-
-                    return $request->user()->can('invite', $this->resource);
-                }),
-        ];
+        return [];
     }
 }

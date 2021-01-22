@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use App\Notifications\UserInvitation;
-use App\Pivots\TeamUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Str;
-use Ramsey\Collection\Collection;
 
 /**
  * Class Team
@@ -17,51 +18,78 @@ use Ramsey\Collection\Collection;
  * @property string                                                          $name
  * @property int                                                             $user_id
  * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\User> $users
- * @property-read \App\Models\User $user
+ * @property-read \App\Models\User                                           $user
  */
 class Team extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'user_id'];
+    protected $fillable = [
+        'name',
+        'user_id',
+        'time_zone',
+    ];
 
-    public function user() {
+    public function user(): BelongsTo
+    {
         return $this->belongsTo(User::class);
     }
-    public function users()
+
+    public function attributes(): HasMany
     {
-        return $this->belongsToMany(User::class)
-            ->using(TeamUser::class)
-            ->withPivot(['id','scopes','status','token','invited_at'])
-            ->withTimestamps()
-            ->as('membership');
+        return $this->hasMany(Attribute::class);
     }
 
-    public function inviteByEmail(string $name, string $email, array|Collection $scopes = [], ?int $authorUserId = null): User
+    public function roles(): HasMany
+    {
+        return $this->hasMany(Role::class);
+    }
+
+    public function members(): HasMany
+    {
+        return $this->hasMany(Member::class);
+    }
+
+    public function users(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            User::class,
+            Member::class,
+            'team_id',
+            'id',
+            'id',
+            'user_id'
+        );
+    }
+
+    public function inviteByEmail(string $name, string $email, int $roleId, ?int $authorUserId = null): User
     {
         $passwordRaw = Str::random(6);
 
         $password = bcrypt($passwordRaw);
 
-        $id = $this
-            ->users()
-            ->create(
-                [
-                    'name'               => $name,
-                    'email'              => $email,
-                    'password'           => $password,
-                    'invited_by_user_id' => $authorUserId ?? $this->user_id,
-                ],
-                [
-                    'scopes'         => $scopes,
-                    'author_user_id' => $authorUserId ?? $this->user_id,
-                ])
-                ->id;
-
         /* @var $user \App\Models\User */
-        $user = $this->users()->wherePivot('user_id', $id)->first();
+        $user = User::create([
+            'name'               => $name,
+            'email'              => $email,
+            'password'           => $password,
+            'invited_by_user_id' => $authorUserId ?? $this->user_id,
+            'team_id'            => $this->id,
+            'time_zone'          => $this->time_zone,
+        ]);
 
-        $user->notify(new UserInvitation(user: $user, team: $this, membership: $user->membership, password: $passwordRaw));
+        /* @var $member \App\Models\Member */
+        $member = $this->members()->create([
+            'user_id'        => $user->id,
+            'role_id'        => $roleId,
+            'author_user_id' => $authorUserId ?? $this->user_id,
+            'status'         => Member::STATUS_INVITED,
+            'is_team_owner'  => false,
+        ]);
+
+        $user->update(['member_id' => $member->id]);
+
+        $user->notify(new UserInvitation(user: $user, team: $this, member: $member, password: $passwordRaw));
 
         return $user;
     }

@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\User;
+use App\Models\Team;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTeamsTable extends Migration
+class CreateAttributesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,11 +14,13 @@ class CreateTeamsTable extends Migration
      */
     public function up()
     {
-        Schema::create('teams', function (Blueprint $table) {
+        Schema::create('attributes', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignIdFor(User::class);
-            $table->string('time_zone')->default('America/Santo_domingo');
+            $table->string('description')->nullable();
+            $table->string('kind')->index();
+            $table->foreignIdFor(Team::class);
+            $table->boolean('enabled');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -31,6 +33,6 @@ class CreateTeamsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('teams');
+        Schema::dropIfExists('attributes');
     }
 }

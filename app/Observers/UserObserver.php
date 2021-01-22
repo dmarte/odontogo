@@ -16,10 +16,12 @@ class UserObserver
      */
     public function created(User $user)
     {
-        Team::create([
-            'name'    => $user->name,
-            'user_id' => $user->id,
-        ]);
+        if (is_null($user->team_id)) {
+            Team::create([
+                'name'    => $user->name,
+                'user_id' => $user->id,
+            ]);
+        }
     }
 
     /**

@@ -2,9 +2,9 @@
 
 namespace App\Policies;
 
+use App\Models\Member;
 use App\Models\Team;
 use App\Models\User;
-use App\Pivots\TeamUser;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class TeamPolicy
@@ -33,7 +33,7 @@ class TeamPolicy
      */
     public function view(User $user, Team $team)
     {
-        return $team->user_id === $user->id || $user->teams()->wherePivot('team_id', $team->id)->exists();
+        return $team->user_id === $user->id || $user->memberships->where('team_id', $team->id)->isNotEmpty();
     }
 
     /**
@@ -62,11 +62,11 @@ class TeamPolicy
             return true;
         }
 
-        return $team
-            ->users()
-            ->wherePivot('team_id', $team->id)
-            ->wherePivot('scopes->', TeamUser::SCOPE_MODIFY_TEAM, true)
-            ->exists();
+        return $user
+            ->memberships
+            ->where('team_id', $team->id)
+            ->where('role.scopes.' . Member::SCOPE_MODIFY_TEAM, true)
+            ->isNotEmpty();
     }
 
     /**
@@ -79,7 +79,7 @@ class TeamPolicy
      */
     public function delete(User $user, Team $team)
     {
-        //
+        return $user->id === $team->user_id;
     }
 
     /**
@@ -108,40 +108,19 @@ class TeamPolicy
         //
     }
 
-    public function inviteMembers(User $user, Team $team)
+    public function invite(User $user, Team $team)
     {
-        return $team
-            ->users()
-            ->wherePivot('user_id', $user->id)
-            ->wherePivot('scopes->' . TeamUser::SCOPE_ADMIN, true)
-            ->exists();
+        return $user
+            ->memberships
+            ->where('team_id', $team->id)
+            ->where('role.level', '<', Member::LEVEL_MANAGER)
+            ->whereIn('role.scopes.' . Member::SCOPE_INVITE_MEMBER, true)
+            ->isNotEmpty()
+            ;
     }
 
-    public function attachAnyUser()
+    public function addMember()
     {
         return false;
     }
-
-    public function attachUser(User $user, Team $team, User $target)
-    {
-
-        if ($user->id === $target->id || $target->id === $team->user_id) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public function detachUser(User $user, Team $team, User $target)
-    {
-        if ($user->id === $team->user_id || $target->id === $team->user_id) {
-            return false;
-        }
-
-        if ($target->membership->scopes->where(TeamUser::SCOPE_ADMIN, true)->isNotEmpty()) {
-            return false;
-        }
-        return true;
-    }
-
 }

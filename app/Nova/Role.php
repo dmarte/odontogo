@@ -3,20 +3,20 @@
 namespace App\Nova;
 
 use Illuminate\Http\Request;
-use Laravel\Nova\Fields\Gravatar;
-use Laravel\Nova\Fields\HasManyThrough;
+use Laravel\Nova\Fields\BooleanGroup;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Password;
+use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 
-class User extends Resource
+class Role extends Resource
 {
+    public static $searchable = false;
     /**
      * The model the resource corresponds to.
      *
      * @var string
      */
-    public static $model = \App\Models\User::class;
+    public static $model = \App\Models\Role::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -25,8 +25,6 @@ class User extends Resource
      */
     public static $title = 'name';
 
-    public static $displayInNavigation = false;
-    public static $searchable = false;
     /**
      * The columns that should be searched.
      *
@@ -34,9 +32,22 @@ class User extends Resource
      */
     public static $search = [
         'id',
-        'name',
-        'email',
     ];
+
+    public static function group()
+    {
+        return __('Administration');
+    }
+
+    public static function label()
+    {
+        return __('Roles');
+    }
+
+    public static function singularLabel()
+    {
+        return __('Role');
+    }
 
     /**
      * Get the fields displayed by the resource.
@@ -48,26 +59,22 @@ class User extends Resource
     public function fields(Request $request)
     {
         return [
-            ID::make()->onlyOnDetail(),
-
-            Gravatar::make()->maxWidth(50)->onlyOnDetail(),
-
-            Text::make('Name')
-                ->sortable()
-                ->rules('required', 'max:255'),
-
-            Text::make('Email')
-                ->hideFromIndex()
-                ->rules('required', 'email', 'max:254')
-                ->creationRules('unique:users,email')
-                ->updateRules('unique:users,email,{{resourceId}}'),
-
-            Password::make('Password')
-                ->onlyOnForms()
-                ->creationRules('required', 'string', 'min:8')
-                ->updateRules('nullable', 'string', 'min:8'),
-
-            HasManyThrough::make(__('validation.attributes.teams'), 'teams', Team::class),
+            ID::make(__('ID'), 'id')->sortable(),
+            Text::make(__('Role'), 'name'),
+            Select::make(__('Level'), 'level')
+                ->options(
+                    collect(\App\Models\Member::LEVELS)
+                        ->mapWithKeys(function ($level) {
+                            return [$level => __("User level {$level}")];
+                        })
+                        ->toArray()
+                )
+                ->displayUsingLabels(),
+            BooleanGroup::make(__('Scopes'), 'scopes')
+            ->options(\App\Models\Member::scopesAsOptions()->toArray())
+            ->hideFalseValues()
+            ->hideWhenCreating()
+            ->hideWhenUpdating()
         ];
     }
 

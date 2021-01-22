@@ -9,10 +9,10 @@ class UserInvitationController extends Controller
 {
     public function __invoke(Team $team, string $token)
     {
-        /* @var $user \App\Models\User */
-        $user = $team->users()->wherePivot('token', $token)->firstOrFail();
+        /* @var $member \App\Models\Member */
+        $member = $team->members()->where('token', $token)->firstOrFail();
 
-        $user->membership->activate();
+        $member->activate();
 
         return redirect()->to('/');
     }
