@@ -43,6 +43,8 @@ class User extends Authenticatable
         'password',
         'locale',
         'time_zone',
+        'currency',
+        'country',
         'invited_by_user_id',
         'team_id',
         'member_id',

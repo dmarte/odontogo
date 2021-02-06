@@ -176,6 +176,8 @@ return [
         App\Providers\NovaServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        // CUSTOM
+        Intervention\Image\ImageServiceProvider::class,
     ],
 
     /*

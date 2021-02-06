@@ -3,8 +3,11 @@
 namespace App\Nova;
 
 use App\Nova\Actions\UserInvitationAction;
+use App\UploadAvatar;
+use Dniccum\PhoneNumber\PhoneNumber;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Laravel\Nova\Fields\Avatar;
 use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\Hidden;
 use Laravel\Nova\Fields\ID;
@@ -53,16 +56,24 @@ class Team extends Resource
         });
     }
 
+    public static function detailQuery(NovaRequest $request, $query)
+    {
+        return $query->whereHas('members', function (Builder $builder) use ($request) {
+            $builder->where('user_id', $request->user()->id);
+        });
+    }
+
+
     public static function group()
     {
-        return __('Administration');
+        return __('Settings');
     }
 
     public static function label()
     {
         return __('Teams');
     }
-    
+
     /**
      * Get the fields displayed by the resource.
      *
@@ -73,10 +84,30 @@ class Team extends Resource
     public function fields(Request $request)
     {
         return [
-            ID::make(__('ID'), 'id')->sortable(),
-            Text::make(__('validation.attributes.name')),
-            HasMany::make(__('validation.attributes.user_id'), 'members', Member::class),
-            Hidden::make('user_id')->default($request->user()->id)->onlyOnForms(),
+            ID::make(__('ID'), 'id')->hideFromIndex(),
+            Avatar::make(__('Logo'), 'avatar_path')
+                ->store(new UploadAvatar)
+            ->disableDownload()
+            ->squared(),
+            Text::make(__('Name'), 'name'),
+            PhoneNumber::make(__('Primary phone'), 'phone_primary')
+                ->disableValidation(),
+            PhoneNumber::make(__('Secondary phone'), 'phone_secondary')
+                ->hideFromIndex()
+                ->disableValidation(),
+            Text::make(__('Address'), 'address_line_1')
+                ->hideFromIndex(),
+            Text::make(__('Email'), 'email')
+                ->rules([
+                    'nullable',
+                    'email',
+                ]),
+            Hidden::make('user_id')
+                ->default($request->user()->id)
+                ->showOnCreating(),
+            Hidden::make('user_id')
+                ->showOnUpdating(),
+            HasMany::make(__('Members'), 'members', Member::class),
         ];
     }
 

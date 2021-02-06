@@ -36,7 +36,7 @@ class Role extends Resource
 
     public static function group()
     {
-        return __('Administration');
+        return __('Settings');
     }
 
     public static function label()

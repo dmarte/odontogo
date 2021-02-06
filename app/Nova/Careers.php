@@ -3,6 +3,7 @@
 namespace App\Nova;
 
 use App\Models\Attribute;
+use App\Nova\Fields\AttributesFields;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Boolean;
@@ -14,7 +15,7 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Careers extends Resource
 {
-    const KIND = Attribute::KIND_CAREER;
+    const KIND = Attribute::KIND_DENTAL_CAREER;
     /**
      * The model the resource corresponds to.
      *
@@ -37,7 +38,59 @@ class Careers extends Resource
     public static $search = [
         'name',
     ];
-    public static $displayInNavigation = false;
+
+    public static $globallySearchable = false;
+
+    public static function group()
+    {
+        return __('Settings');
+    }
+
+    public static function label()
+    {
+        return __('Careers');
+    }
+
+    public static function singularLabel()
+    {
+        return __('Career');
+    }
+
+    public static function indexQuery(NovaRequest $request, $query)
+    {
+        $query
+            ->where('kind', self::KIND)
+            ->where('team_id', $request->user()->member->team_id);
+
+        return $query;
+    }
+
+    public static function scoutQuery(NovaRequest $request, $query)
+    {
+        $query
+            ->where('kind', self::KIND)
+            ->where('team_id', $request->user()->member->team_id);
+
+        return $query;
+    }
+
+    public static function detailQuery(NovaRequest $request, $query)
+    {
+        $query
+            ->where('kind', self::KIND)
+            ->where('team_id', $request->user()->member->team_id);
+
+        return $query;
+    }
+
+    public static function relatableQuery(NovaRequest $request, $query)
+    {
+        $query
+            ->where('kind', self::KIND)
+            ->where('team_id', $request->user()->member->team_id);
+
+        return $query;
+    }
 
     /**
      * Get the fields displayed by the resource.
@@ -49,16 +102,17 @@ class Careers extends Resource
     public function fields(Request $request)
     {
         return [
-            ID::make(__('ID'), 'id')->sortable(),
-            Text::make(__('validation.attributes.name'), 'name')
-            ->creationRules([
-                'required',
-                'min:4'
-            ]),
+            ID::make(__('ID'), 'id')->sortable()->onlyOnDetail(),
+            Text::make(__('Name'), 'name')
+                ->creationRules([
+                    'required',
+                    'min:4',
+                ]),
             Textarea::make(__('validation.attributes.description'), 'description'),
             BelongsTo::make(__('validation.attributes.team_id'), 'team', Team::class)
-                ->default(fn(NovaRequest $request) => $request->user()->team_id),
-            Boolean::make(__('validation.attributes.enabled'), 'enabled')
+                ->default(fn(NovaRequest $request) => $request->user()->team_id)
+                ->onlyOnForms(),
+            Boolean::make(__('Enabled'), 'enabled')
                 ->default(fn() => true),
             Hidden::make('kind')
                 ->onlyOnForms()

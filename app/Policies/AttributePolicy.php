@@ -21,7 +21,7 @@ class AttributePolicy
     }
 
     public function view(User $user, Attribute $attribute) {
-        return $user->memberships->where('team_id', $attribute->team_id)->isNotEmpty();
+        return false;
     }
 
     public function delete(User $user, Attribute $attribute) {

@@ -25,6 +25,8 @@ class CreateUsersTable extends Migration
             $table->foreignIdFor(User::class, 'invited_by_user_id')->nullable();
             $table->string('time_zone')->default('America/Santo_Domingo');
             $table->char('locale', 2)->default('es');
+            $table->char('country', 3)->default('DO');
+            $table->char('currency', 3)->default('DOP');
             $table->foreignIdFor(Team::class)->nullable();
             $table->foreignIdFor(Member::class)->nullable();
             $table->rememberToken();

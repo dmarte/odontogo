@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Notifications\UserInvitation;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,6 +18,16 @@ use Illuminate\Support\Str;
  * @property-read int                                                        $id
  * @property string                                                          $name
  * @property int                                                             $user_id
+ * @property string                                                          $country
+ * @property string                                                          $currency
+ * @property string $avatar_path
+ * @property string $avatar_disk
+ * @property int $avatar_size
+ * @property string $phone_primary
+ * @property string $phone_secondary
+ * @property string $address_line_1
+ * @property string $email
+ * @property string $locale
  * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\User> $users
  * @property-read \App\Models\User                                           $user
  */
@@ -26,7 +37,17 @@ class Team extends Model
 
     protected $fillable = [
         'name',
+        'avatar_path',
+        'avatar_disk',
+        'avatar_size',
+        'phone_primary',
+        'phone_secondary',
+        'address_line_1',
+        'email',
         'user_id',
+        'country',
+        'currency',
+        'locale',
         'time_zone',
     ];
 
@@ -60,6 +81,57 @@ class Team extends Model
             'id',
             'user_id'
         );
+    }
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class)->orderBy('name');
+    }
+
+    public function sequences(): HasMany
+    {
+        return $this->hasMany(Sequence::class);
+    }
+
+    public function sequencesNotExpired(): HasMany
+    {
+        return $this
+            ->sequences()
+            ->where(function (Builder $query) {
+
+                $query
+                    ->whereNull('expire_at')
+                    ->orWhereRaw("expire_at > DATE(NOW())")
+                    ->orWhereRaw("expire_at = DATE(NOW())");
+            });
+    }
+
+    public function diagnosis(): HasMany
+    {
+        return $this
+            ->attributes()
+            ->where('kind', Attribute::KIND_DENTAL_DIAGNOSIS);
+    }
+
+    public function insurances(): HasMany
+    {
+        return $this
+            ->attributes()
+            ->where('kind', Attribute::KIND_DENTAL_INSURANCE);
+    }
+
+    public function careers(): HasMany
+    {
+        return $this
+            ->attributes()
+            ->where('kind', Attribute::KIND_DENTAL_CAREER);
+    }
+
+    public function sources(): HasMany
+    {
+        return $this
+            ->attributes()
+            ->where('kind', Attribute::KIND_AD_SOURCE);
     }
 
     public function inviteByEmail(string $name, string $email, int $roleId, ?int $authorUserId = null): User

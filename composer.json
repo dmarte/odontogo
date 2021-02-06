@@ -9,12 +9,18 @@
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
+        "dniccum/phone-number": "^1.1",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
+        "gregoriohc/laravel-nova-theme-responsive": "^0.8.1",
         "guzzlehttp/guzzle": "^7.2.0",
+        "intervention/image": "^2.5",
         "laravel/framework": "^8.12",
+        "laravel/nova": "~3.0",
         "laravel/tinker": "^2.5",
-        "laravel/nova": "~3.0"
+        "ogo/theme": "*",
+        "padocia/laravel-nova-pdf": "^1.0",
+        "whitecube/nova-flexible-content": "^0.2.7"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
@@ -64,6 +70,10 @@
         {
             "type": "composer",
             "url": "https://nova.laravel.com"
+        },
+        {
+            "type": "path",
+            "url": "./nova-components/Theme"
         }
     ]
 }

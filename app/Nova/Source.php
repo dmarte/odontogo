@@ -3,6 +3,7 @@
 namespace App\Nova;
 
 use App\Models\Attribute;
+use App\Nova\Fields\AttributesFields;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Boolean;
@@ -14,7 +15,8 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Source extends Resource
 {
-    public static $searchable = false;
+    public static $globallySearchable = false;
+
     /**
      * The model the resource corresponds to.
      *
@@ -40,7 +42,7 @@ class Source extends Resource
 
     public static function group()
     {
-        return __('Administration');
+        return __('Settings');
     }
 
     public static function label()
@@ -51,6 +53,15 @@ class Source extends Resource
     public static function singularLabel()
     {
         return __('Source');
+    }
+
+    public static function indexQuery(NovaRequest $request, $query)
+    {
+        $query
+            ->where('kind', Attribute::KIND_AD_SOURCE)
+            ->where('team_id', $request->user()->member->team_id);
+
+        return $query;
     }
 
     /**
@@ -76,7 +87,7 @@ class Source extends Resource
                 ->default(fn() => true),
             Hidden::make('kind')
                 ->onlyOnForms()
-                ->default(fn() => Attribute::KIND_ADS_SOURCE),
+                ->default(fn() => Attribute::KIND_AD_SOURCE),
         ];
     }
 

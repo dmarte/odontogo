@@ -1,0 +1,19 @@
+:root {
+  --primary: rgb(1, 182, 254);
+  --primary-dark: rgb(0, 160, 209);
+  --primary-70: rgb(1, 203, 254);
+  --primary-50: rgb(154, 246, 255);
+  --primary-30: rgb(200, 238, 255);
+  --primary-10: rgb(228, 251, 255);
+  --logo: #fff;
+  --sidebar-icon: #ffff;
+}
+
+* {
+    font-family: 'Roboto', sans-serif;
+}
+
+.bg-grad-sidebar {
+    background-image: none;
+  background: var(--primary-dark);
+}

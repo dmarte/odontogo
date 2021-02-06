@@ -42,6 +42,7 @@ class Member extends Model
     const SCOPE_CONTACTS_ADD = 'add_contacts';
     const SCOPE_CONTACTS_DELETE = 'delete_contacts';
     const SCOPE_CONTACTS_MODIFY = 'modify_contacts';
+    const SCOPE_CONTACTS_MODIFY_CREDIT = 'modify_credit';
     const SCOPE_ATTRIBUTES_ADD = 'add_attributes';
     const SCOPE_ATTRIBUTES_MODIFY = 'modify_attributes';
     const SCOPE_ATTRIBUTES_DELETE = 'delete_attributes';
@@ -64,6 +65,7 @@ class Member extends Model
         self::SCOPE_ATTRIBUTES_ADD,
         self::SCOPE_ATTRIBUTES_DELETE,
         self::SCOPE_ATTRIBUTES_MODIFY,
+        self::SCOPE_CONTACTS_MODIFY_CREDIT
     ];
 
     const STATUSES = [
@@ -94,6 +96,7 @@ class Member extends Model
         'role_id',
         'team_id',
         'user_id',
+        'contact_id',
     ];
 
     public static function scopesAsOptions(): Collection
@@ -110,6 +113,10 @@ class Member extends Model
             ->mapWithKeys(function ($status) {
                 return [$status => __(Str::ucfirst($status))];
             });
+    }
+
+    public function contact() : BelongsTo {
+        return $this->belongsTo(Contact::class);
     }
 
     public function role(): BelongsTo

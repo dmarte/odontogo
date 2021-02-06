@@ -26,7 +26,10 @@ class CreateMembersTable extends Migration
             $table->foreignIdFor(User::class)
                 ->cascadeOnUpdate()
                 ->cascadeOnDeletete();
-            $table->foreignIdFor(Role::class);
+            $table->foreignIdFor(Role::class)
+                ->cascadeOnUpdate()
+                ->cascadeOnDeletete();
+            $table->foreignIdFor(\App\Models\Contact::class)->nullable();
             $table->string('status', 40)->default(Member::STATUS_INVITED);
             $table->string('token')->unique();
             $table->dateTime('invited_at');

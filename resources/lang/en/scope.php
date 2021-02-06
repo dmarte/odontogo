@@ -5,5 +5,6 @@ return [
     'add_contacts'=> 'Add contacts',
     'delete_contacts'=> 'Delete contacts',
     'modify_contacts'=> 'Modify contacts',
-    'invite_member'=>'Invite members'
+    'invite_member'=>'Invite members',
+    'modify_credit'=> 'Modify contacts credit'
 ];

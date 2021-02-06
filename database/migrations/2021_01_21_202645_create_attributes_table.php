@@ -20,7 +20,8 @@ class CreateAttributesTable extends Migration
             $table->string('description')->nullable();
             $table->string('kind')->index();
             $table->foreignIdFor(Team::class);
-            $table->boolean('enabled');
+            $table->boolean('enabled')->default(true);
+            $table->foreignIdFor(\App\Models\User::class,'author_user_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

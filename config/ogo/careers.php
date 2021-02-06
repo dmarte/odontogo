@@ -1,0 +1,17 @@
+<?php
+
+return [
+    'ODONTOLOGIA GENERAL',
+    'CIROGIA ORAL',
+    'PROSTODONCIA',
+    'ORTODONCIA',
+    'ENDODONCIA',
+    'PRÓTESIS / ESTÉTICA',
+    'PERIODÓNCIA',
+    'MAXILOFACIAL',
+    'IMPLANTOLOGÍA',
+    'EMERGENCIA',
+    'RADIOGRAFÍA',
+    'PEDIATRÍA',
+    'LABORATORIOS',
+];
