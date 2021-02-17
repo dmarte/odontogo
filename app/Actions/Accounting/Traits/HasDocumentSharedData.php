@@ -130,7 +130,6 @@ trait HasDocumentSharedData
     {
         return join(' ', array_filter([
             $this->code,
-            $this->currency,
             $this->format('total'),
             $this->id && $this->emitted_at ? "({$this->emitted_at?->locale(app()->getLocale())->toFormattedDateString()})" : null
         ]));

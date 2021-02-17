@@ -106,36 +106,6 @@ class Insurances extends Resource
     }
 
     /**
-     * Since we can only view the list of items,
-     * after create or update we will be redirecting
-     * to the list of items.
-     *
-     * @param \Laravel\Nova\Http\Requests\NovaRequest $request
-     * @param \Laravel\Nova\Resource                  $resource
-     *
-     * @return string
-     */
-    public static function redirectAfterCreate(NovaRequest $request, $resource)
-    {
-        return '/resources/' . static::uriKey();
-    }
-
-    /**
-     * Since we can only view the list of items,
-     * after create or update we will be redirecting
-     * to the list of items.
-     *
-     * @param \Laravel\Nova\Http\Requests\NovaRequest $request
-     * @param \Laravel\Nova\Resource                  $resource
-     *
-     * @return string
-     */
-    public static function redirectAfterUpdate(NovaRequest $request, $resource)
-    {
-        return '/resources/' . static::uriKey();
-    }
-
-    /**
      * Get the cards available for the request.
      *
      * @param \Illuminate\Http\Request $request

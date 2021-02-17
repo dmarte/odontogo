@@ -38,6 +38,7 @@ use Illuminate\Support\Collection;
  * @property-read string $next_formatted
  * @property-read int $next
  * @property-read int $previous
+ * @property-read bool $is_default
  * @property-read boolean $is_required_increase
  * @property-read int $reminding_numbers
  */
@@ -65,9 +66,11 @@ class Sequence extends Model
         'counter' => 'int',
         'length' => 'int',
         'maximum' => 'int',
+        'is_default' => 'bool',
         'expire_at' => 'date:Y-m-d',
         'deleted_at' => 'date:Y-m-d H:i:s',
         'types' => 'collection',
+        'tax_payer_types'=> 'collection'
     ];
 
     protected $fillable = [
@@ -79,6 +82,8 @@ class Sequence extends Model
         'counter',
         'maximum',
         'expire_at',
+        'tax_payer_types',
+        'is_default',
         'types',
         'parent_sequence_id',
         'author_user_id',

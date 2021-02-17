@@ -11,42 +11,44 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * Class Contact
  *
  * @package App\Models
- * @property-read int                 $id
- * @property string                   $avatar_path
- * @property string                   $avatar_disk
- * @property int                      $avatar_size
- * @property string                   $code
- * @property int                      $counter
- * @property string                   $kind
- * @property string                   $name
- * @property string                   $tax_payer_name
- * @property string                   $tax_payer_number
- * @property string                   $identification_number
- * @property int                      $insurance_attribute_id
- * @property int                      $source_attribute_id
- * @property string                   $title
- * @property string                   $company
- * @property string                   $phone_primary
- * @property string                   $phone_secondary
- * @property string                   $email_primary
- * @property string                   $email_secondary
- * @property string                   $notes
- * @property string                   $gender
- * @property string                   $country_code
- * @property string                   $currency_code
- * @property \Carbon\Carbon|null      $birthday
- * @property \Carbon\Carbon           $registered_at
- * @property string                   $address_line_1
- * @property string                   $address_line_2
- * @property string                   $city_name
- * @property string                   $postal_code
- * @property float                    $latitude
- * @property float                    $longitude
- * @property int                      $team_id
- * @property int                      $author_user_id
- * @property int                      $updated_by_user_id
- * @property-read \Carbon\Carbon      $created_at
- * @property-read \Carbon\Carbon      $updated_at
+ * @property-read int $id
+ * @property string $avatar_path
+ * @property string $avatar_disk
+ * @property int $avatar_size
+ * @property string $code
+ * @property int $counter
+ * @property string $kind
+ * @property string $name
+ * @property string $tax_payer_name
+ * @property string $tax_payer_number
+ * @property string $tax_payer_type
+ * @property string $identification_number
+ * @property int $insurance_attribute_id
+ * @property int $source_attribute_id
+ * @property int $sequence_id
+ * @property string $title
+ * @property string $company
+ * @property string $phone_primary
+ * @property string $phone_secondary
+ * @property string $email_primary
+ * @property string $email_secondary
+ * @property string $notes
+ * @property string $gender
+ * @property string $country_code
+ * @property string $currency_code
+ * @property \Carbon\Carbon|null $birthday
+ * @property \Carbon\Carbon $registered_at
+ * @property string $address_line_1
+ * @property string $address_line_2
+ * @property string $city_name
+ * @property string $postal_code
+ * @property float $latitude
+ * @property float $longitude
+ * @property int $team_id
+ * @property int $author_user_id
+ * @property int $updated_by_user_id
+ * @property-read \Carbon\Carbon $created_at
+ * @property-read \Carbon\Carbon $updated_at
  * @property-read \Carbon\Carbon|null $deleted_at
  */
 class Contact extends Model
@@ -62,9 +64,10 @@ class Contact extends Model
     public const KIND_PROVIDER = 'PR';
     public const KIND_PATIENT = 'PA';
 
+    protected $table = 'contacts';
     protected $casts = [
         'registered_at' => 'date',
-        'deleted_at'=> 'date',
+        'deleted_at'    => 'date',
         'birthday'      => 'date',
         'counter'       => 'int',
         'emails'        => 'array',
@@ -82,6 +85,8 @@ class Contact extends Model
         'counter',
         'kind',
         'name',
+        'sequence_id',
+        'tax_payer_type',
         'tax_payer_name',
         'tax_payer_number',
         'identification_number',
@@ -116,6 +121,11 @@ class Contact extends Model
         'credit_value',
         'credit_days',
     ];
+
+    public function sequence(): BelongsTo
+    {
+        return $this->belongsTo(Sequence::class);
+    }
 
     public function insurance(): BelongsTo
     {

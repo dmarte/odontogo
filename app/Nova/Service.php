@@ -2,9 +2,11 @@
 
 namespace App\Nova;
 
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Currency;
+use Laravel\Nova\Fields\Hidden;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
@@ -12,27 +14,9 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Service extends Resource
 {
-    /**
-     * The model the resource corresponds to.
-     *
-     * @var string
-     */
-    public static $model = \App\Models\Product::class;
-
-    /**
-     * The single value that should be used to represent the resource when being displayed.
-     *
-     * @var string
-     */
+    public static $model = Product::class;
     public static $title = 'name';
-
     public static $priority = 3;
-
-    /**
-     * The columns that should be searched.
-     *
-     * @var array
-     */
     public static $search = [
         'name',
         'code',
@@ -118,10 +102,9 @@ class Service extends Resource
                 ->withoutTrashed()
                 ->sortable()
                 ->searchable(),
-            BelongsTo::make(__('Team'), 'team', Team::class)
+            Hidden::make('team_id')
                 ->default(fn($request) => $request->user()->member->team_id)
-                ->hideFromIndex()
-                ->hideCreateRelationButton(),
+                ->hideWhenUpdating(),
         ];
     }
 

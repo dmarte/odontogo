@@ -34,6 +34,7 @@ class CreateDocumentsItemsTable extends Migration
             $table->decimal('price', 18, 2)->unsigned()->default(0);
             $table->decimal('taxes', 18, 2)->default(0);
             $table->decimal('discounts', 18, 2)->default(0);
+            $table->decimal('discount_rate', 18,2)->default(0);
             $table->decimal('subtotal', 18, 2)->default(0);
             $table->decimal('total', 18, 2)->default(0);
             $table->decimal('balance', 18, 2)->default(0);

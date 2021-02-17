@@ -7,9 +7,12 @@ use App\Actions\Accounting\Interfaces\Summarizable;
 use App\Actions\Accounting\Interfaces\Transformable;
 use App\Actions\Accounting\Traits\HasDocumentSharedData;
 use App\Models\Contact;
+use App\Models\Document;
 use App\Models\Item;
+use App\Models\Product;
 use App\Models\Team;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Arr;
 
 /**
@@ -20,6 +23,7 @@ use Illuminate\Support\Arr;
  * @property string $description
  * @property int $document_id
  * @property int $product_id
+ * @property float $discount_rate
  * @property array $data
  * @method static static create(array $array)
  */
@@ -39,16 +43,30 @@ class Child extends Model implements Transformable, Summarizable
     protected $fillable = [
         'document_id',
         'product_id',
-        'data',
+        'discount_rate',
     ];
+
+    public function sanitize() :void {
+        $this->data = ChildData::build($this->data)->toArray();
+        $this->price = $this->product->price;
+        $this->summarize();
+        $this->document->summarize();
+    }
 
     public static function booted()
     {
         static::creating(function (Child $child) {
-//            $child->data = ChildData::build($child->data)->toArray();
-
-            $child->summarize();
+            $child->sanitize();
         });
+
+        static::updated(function(Child $child) {
+            $child->sanitize();
+        });
+
+        static::deleted(function(Child $child) {
+            $this->document->summarize();
+        });
+
         parent::booted();
     }
 
@@ -207,7 +225,11 @@ class Child extends Model implements Transformable, Summarizable
 
     public function summarizedDiscounts(): float|int
     {
-        return $this->data()->getDiscountRate($this->summarizedAmount());
+        if ($this->discount_rate < 1) {
+            return 0;
+        }
+
+        return $this->summarizedPrice() - (($this->discount_rate * $this->price) / 100);
     }
 
     public function data(): ChildData
@@ -271,6 +293,13 @@ class Child extends Model implements Transformable, Summarizable
 
         return $amount;
 
-        return 0;
+    }
+
+    public function document() : BelongsTo {
+        return $this->belongsTo(Document::class);
+    }
+
+    public function product() : BelongsTo {
+        return $this->belongsTo(Product::class);
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Team;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,9 +20,10 @@ class CreateAttributesTable extends Migration
             $table->string('name');
             $table->string('description')->nullable();
             $table->string('kind')->index();
-            $table->foreignIdFor(Team::class);
+            $table->foreignIdFor(Team::class)->nullable();
             $table->boolean('enabled')->default(true);
-            $table->foreignIdFor(\App\Models\User::class,'author_user_id')->nullable();
+            $table->foreignIdFor(User::class,'author_user_id')->nullable();
+            $table->json('data')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

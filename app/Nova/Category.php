@@ -6,6 +6,7 @@ use App\Models\Attribute;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Boolean;
+use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\Hidden;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
@@ -15,30 +16,12 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 class Category extends Resource
 {
     const KIND = Attribute::KIND_GENERAL_CATEGORY;
-    /**
-     * The model the resource corresponds to.
-     *
-     * @var string
-     */
+    public static $globallySearchable = false;
     public static $model = Attribute::class;
-
-    /**
-     * The single value that should be used to represent the resource when being displayed.
-     *
-     * @var string
-     */
     public static $title = 'name';
-
-    /**
-     * The columns that should be searched.
-     *
-     * @var array
-     */
     public static $search = [
         'name',
     ];
-
-    public static $globallySearchable = false;
 
     public static function group()
     {
@@ -59,7 +42,8 @@ class Category extends Resource
     {
         $query
             ->where('kind', self::KIND)
-            ->where('team_id', $request->user()->member->team_id);
+            ->where('team_id', $request->user()->team->id)
+        ;
 
         return $query;
     }
@@ -107,10 +91,10 @@ class Category extends Resource
                     'required',
                     'min:4',
                 ]),
-            Textarea::make(__('validation.attributes.description'), 'description'),
-            BelongsTo::make(__('validation.attributes.team_id'), 'team', Team::class)
-                ->default(fn(NovaRequest $request) => $request->user()->team_id)
-                ->onlyOnForms(),
+            Textarea::make(__('Description'), 'description'),
+            Hidden::make('team_id')
+                ->default($request->user()->team->id)
+                ->showOnCreating(),
             Boolean::make(__('Enabled'), 'enabled')
                 ->default(fn() => true)
                 ->hideWhenCreating(),
@@ -123,35 +107,6 @@ class Category extends Resource
         ];
     }
 
-    /**
-     * Since we can only view the list of items,
-     * after create or update we will be redirecting
-     * to the list of items.
-     *
-     * @param \Laravel\Nova\Http\Requests\NovaRequest $request
-     * @param \Laravel\Nova\Resource                  $resource
-     *
-     * @return string
-     */
-    public static function redirectAfterCreate(NovaRequest $request, $resource)
-    {
-        return '/resources/' . static::uriKey();
-    }
-
-    /**
-     * Since we can only view the list of items,
-     * after create or update we will be redirecting
-     * to the list of items.
-     *
-     * @param \Laravel\Nova\Http\Requests\NovaRequest $request
-     * @param \Laravel\Nova\Resource                  $resource
-     *
-     * @return string
-     */
-    public static function redirectAfterUpdate(NovaRequest $request, $resource)
-    {
-        return '/resources/' . static::uriKey();
-    }
 
     /**
      * Get the cards available for the request.

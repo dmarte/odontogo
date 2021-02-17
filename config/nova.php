@@ -116,7 +116,7 @@ return [
     |
     */
 
-    'pagination' => 'simple',
+    'pagination' => 'load-more',
 
     /*
     |--------------------------------------------------------------------------
@@ -144,6 +144,6 @@ return [
     |
     */
 
-    'currency' => 'USD',
+    'currency' => 'DOP',
 
 ];

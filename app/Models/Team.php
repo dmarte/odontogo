@@ -35,6 +35,12 @@ class Team extends Model
 {
     use HasFactory;
 
+    protected $attributes = [
+        'country'=> 'DO',
+        'currency'=> 'DOP',
+        'locale'=> 'es',
+        'time_zone'=>'America/Santo_Domingo'
+    ];
     protected $fillable = [
         'name',
         'avatar_path',
@@ -83,6 +89,13 @@ class Team extends Model
         );
     }
 
+    public function catalog(): HasMany {
+        return $this
+            ->hasMany(Attribute::class)
+            ->where('kind', Attribute::KIND_CATALOG_ACCOUNTING)
+            ->orderBy('name');
+    }
+
     public function products(): HasMany
     {
         return $this->hasMany(Product::class)->orderBy('name');
@@ -91,6 +104,23 @@ class Team extends Model
     public function sequences(): HasMany
     {
         return $this->hasMany(Sequence::class);
+    }
+
+    public function budgetSequence() {
+        return $this
+            ->hasOne(Sequence::class)
+            ->where('types->' . Document::KIND_INVOICE_BUDGET, true)
+            ->withDefault();
+    }
+
+    public function sequencesForInvoices() : HasMany {
+        return $this
+            ->sequencesNotExpired()
+            ->where(function(Builder $builder) {
+                $builder
+                    ->where('types->'. Document::KIND_CREDIT_INVOICE, true)
+                    ->orWhere('types->'.Document::KIND_CASH_BILL, true);
+            });
     }
 
     public function sequencesNotExpired(): HasMany

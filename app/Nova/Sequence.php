@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\BooleanGroup;
 use Laravel\Nova\Fields\Date;
+use Laravel\Nova\Fields\Hidden;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Text;
@@ -88,8 +89,8 @@ class Sequence extends Resource
                 ])
                 ->hideFromIndex(),
             Number::make(__('Sequence counter'), 'counter')
-                ->hideWhenCreating()
-                ->hideWhenUpdating(),
+//                ->hideWhenUpdating()
+                ->hideWhenCreating(),
             Number::make(__('Sequence initial counter'), 'initial_counter')
                 ->min(1)
                 ->hideWhenUpdating()
@@ -129,7 +130,10 @@ class Sequence extends Resource
                 ->hideFalseValues(),
             BelongsTo::make(__('Team'), 'team', Team::class)
                 ->default(fn(NovaRequest $request) => $request->user()->member->team_id)
-                ->hideFromIndex(),
+                ->hideFromIndex()
+            ->hideWhenUpdating()
+            ->hideWhenCreating(),
+            Hidden::make('team_id')->default(fn($request) => $request->user()->member->team_id)
         ];
     }
 

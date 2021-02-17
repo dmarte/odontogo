@@ -7,18 +7,11 @@
         "watch-poll": "mix watch -- --watch-options-poll=1000",
         "hot": "mix watch --hot",
         "prod": "npm run production",
-        "production": "mix --production",
-        "build-invoice-field": "cd nova-components/InvoiceField && npm run dev",
-        "build-invoice-field-prod": "cd nova-components/InvoiceField && npm run prod",
-        "build-nova-field-document-item": "cd nova-components/NovaFieldDocumentItem && npm run dev",
-        "build-nova-field-document-item-prod": "cd nova-components/NovaFieldDocumentItem && npm run prod",
-        "build-documents": "cd nova-components/Documents && npm run dev",
-        "build-documents-prod": "cd nova-components/Documents && npm run prod"
+        "production": "mix --production"
     },
     "devDependencies": {
-        "axios": "^0.21",
         "laravel-mix": "^6.0.6",
-        "lodash": "^4.17.19",
-        "postcss": "^8.1.14"
-    }
+        "postcss": "^8.2.6"
+    },
+    "dependencies": {}
 }

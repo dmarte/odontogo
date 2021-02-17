@@ -11,6 +11,31 @@ class ContactObserver
     {
         $contact->counter = $this->counter($contact);
         $contact->code = $this->code($contact, $contact->counter);
+
+        if (is_null($contact->registered_at)) {
+            $contact->registered_at = now()->format('Y-m-d');
+        }
+
+        if(is_null($contact->tax_payer_name)) {
+            $contact->tax_payer_name = $contact->name;
+        }
+
+        if(is_null($contact->tax_payer_number)) {
+            $contact->tax_payer_number = $contact->identification_number;
+        }
+
+        if (is_null($contact->tax_payer_type)) {
+            $contact->tax_payer_type = config("ogo.{$contact->team->country}.contributors.default_type");
+        }
+
+        if (is_null($contact->sequence_id)) {
+            $contact->sequence_id = $contact->team
+                ->sequencesForInvoices()
+                ->where('prefix', config("ogo.{$contact->team->country}.contributors.default_fiscal"))
+                ->whereJsonContains('tax_payer_types', $contact->tax_payer_type)
+                ->first()
+                ?->id;
+        }
     }
 
     public function updating(Contact $contact) {

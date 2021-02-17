@@ -3,6 +3,7 @@
 namespace App\Nova;
 
 use App\Models\Contact;
+use App\Models\Document;
 use App\Nova\Metrics\NewPatientsMetrics;
 use App\UploadAvatar;
 use Dniccum\PhoneNumber\PhoneNumber;
@@ -28,14 +29,22 @@ class Patient extends Resource
      *
      * @var string
      */
-    public static $model = \App\Models\Contact::class;
+    public static $model = \App\Models\Patient::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
      *
      * @var string
      */
-    public static $title = 'name';
+    public function title()
+    {
+        return $this->tax_payer_name ?? $this->name;
+    }
+
+    public function subtitle()
+    {
+        return $this->code;
+    }
 
     public static $priority = 1;
 
@@ -48,6 +57,21 @@ class Patient extends Resource
         'name',
         'code',
     ];
+
+
+    public static function getFieldForContributorType($country = 'DO', $fieldName = 'tax_payer_type')
+    {
+        $country = strtoupper($country);
+
+        return Select::make(__('Contributor type'), $fieldName)
+            ->rules([
+                'required', 'string', 'size:1',
+            ])
+            ->options(config("ogo.{$country}.contributors.types"))
+            ->default(config("ogo.{$country}.contributors.default_type"))
+            ->displayUsingLabels();
+    }
+
 
     public static function group()
     {
@@ -82,18 +106,16 @@ class Patient extends Resource
     /**
      * Get the fields displayed by the resource.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      *
      * @return array
      */
     public function fields(Request $request)
     {
         $country = strtolower($request->user()->country);
-        /* @var $member \App\Models\Member */
-        $member = $request->user()->member;
 
         return [
-            Text::make(__('ID'), 'counter')->sortable()->hideWhenUpdating()->hideWhenCreating(),
+            Text::make(__('ID'), 'counter')->onlyOnDetail(),
 
             Text::make(__('Code'), 'code')->hideWhenCreating()->hideWhenUpdating(),
 
@@ -132,7 +154,7 @@ class Patient extends Resource
                 ]),
             Date::make(__('Birthday'), 'birthday')
                 ->rules([
-                    'nullable',
+                    'required',
                     'date',
                 ])
                 ->hideFromIndex(),
@@ -178,7 +200,8 @@ class Patient extends Resource
                     'email',
                     Rule::unique('contacts', 'email_primary')
                         ->whereNull('deleted_at')
-                        ->where('team_id', $request->user()->team_id),
+                        ->where('team_id', $request->user()->team_id)
+                        ->ignore($this->resource?->id),
                 ])
                 ->hideFromIndex(),
             Text::make(__('Secondary email'), 'email_secondary')
@@ -189,7 +212,7 @@ class Patient extends Resource
                 ])
                 ->hideWhenCreating()
                 ->hideFromIndex(),
-            // ----------- [ Adress ]
+            // ----------- [ Address ]
             Heading::make(__('Address')),
             Country::make(__('Country'), 'country_code')
                 ->default(fn() => $request->user()->country)
@@ -205,6 +228,7 @@ class Patient extends Resource
 
             Heading::make(__('Insurance information')),
             BelongsTo::make(__('Insurance company'), 'insurance', Insurances::class)
+                ->showCreateRelationButton()
                 ->withoutTrashed()
                 ->nullable()
                 ->hideFromIndex(),
@@ -235,21 +259,24 @@ class Patient extends Resource
                 ->format('LL'),
 
             BelongsTo::make(__('Source'), 'source', Source::class)
+                ->showCreateRelationButton()
                 ->withoutTrashed()
                 ->help(__('how did you hear about us?'))
                 ->rules([
                     'required',
                     'numeric',
                 ]),
-            BelongsTo::make(__('Category'), 'category', Category::class)
+            BelongsTo::make(__('Catalog'), 'category', Category::class)
                 ->nullable()
                 ->withoutTrashed()
                 ->hideWhenCreating()
+                ->hideWhenUpdating()
                 ->hideFromIndex(),
-            BelongsTo::make(__('Subcategory'), 'subcategory', Category::class)
+            BelongsTo::make(__('Sub-Catalog'), 'subcategory', Category::class)
                 ->nullable()
                 ->withoutTrashed()
                 ->hideWhenCreating()
+                ->hideWhenUpdating()
                 ->hideFromIndex(),
 
             // ---------- [ Tax information ]
@@ -261,6 +288,15 @@ class Patient extends Resource
                 ->hideWhenCreating()
                 ->hideFromIndex(),
             Text::make(__("{$country}_tax_payer_number"), 'tax_payer_number')
+                ->hideWhenCreating()
+                ->hideFromIndex(),
+            self::getFieldForContributorType($country, 'tax_payer_type')
+                ->hideWhenCreating(),
+            Hidden::make('tax_payer_type')
+                ->default(config("ogo.{$country}.contributors.default_type"))
+                ->showOnCreating(),
+            BelongsTo::make(__('Invoicing type'), 'sequence', Sequence::class)
+                ->withoutTrashed()
                 ->hideWhenCreating()
                 ->hideFromIndex(),
 
@@ -282,10 +318,19 @@ class Patient extends Resource
         ];
     }
 
+    public static function relatableSequence(NovaRequest $request, $query)
+    {
+        return $query->where(function ($query) {
+            $query
+                ->where('typesx->'.Document::KIND_CASH_BILL)
+                ->orWhere('types->'.Document::KIND_CREDIT_INVOICE);
+        });
+    }
+
     /**
      * Get the cards available for the request.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      *
      * @return array
      */
@@ -299,7 +344,7 @@ class Patient extends Resource
     /**
      * Get the filters available for the resource.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      *
      * @return array
      */
@@ -311,7 +356,7 @@ class Patient extends Resource
     /**
      * Get the lenses available for the resource.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      *
      * @return array
      */
@@ -323,7 +368,7 @@ class Patient extends Resource
     /**
      * Get the actions available for the resource.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      *
      * @return array
      */

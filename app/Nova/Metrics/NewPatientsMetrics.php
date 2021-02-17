@@ -54,16 +54,6 @@ class NewPatientsMetrics extends Value
      */
     public function cacheFor()
     {
-        // return now()->addMinutes(5);
-    }
-
-    /**
-     * Get the URI key for the metric.
-     *
-     * @return string
-     */
-    public function uriKey()
-    {
-        return 'new-patients-metrics';
+         return now()->addMinutes(5);
     }
 }

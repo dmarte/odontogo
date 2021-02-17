@@ -12,14 +12,19 @@
         "dniccum/phone-number": "^1.1",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
+        "gldrenthe89/nova-calculated-field": "^2.0",
         "gregoriohc/laravel-nova-theme-responsive": "^0.8.1",
         "guzzlehttp/guzzle": "^7.2.0",
+        "hubertnnn/laravel-nova-field-dynamic-select": "^0.2.0",
         "intervention/image": "^2.5",
+        "laravel/fortify": "^1.7",
         "laravel/framework": "^8.12",
         "laravel/nova": "~3.0",
+        "laravel/sanctum": "^2.9",
         "laravel/tinker": "^2.5",
-        "ogo/theme": "*",
+        "orlyapps/nova-belongsto-depend": "^2.0",
         "padocia/laravel-nova-pdf": "^1.0",
+        "techouse/intl-date-time": "^1.6",
         "whitecube/nova-flexible-content": "^0.2.7"
     },
     "require-dev": {
@@ -70,10 +75,6 @@
         {
             "type": "composer",
             "url": "https://nova.laravel.com"
-        },
-        {
-            "type": "path",
-            "url": "./nova-components/Theme"
         }
     ]
 }

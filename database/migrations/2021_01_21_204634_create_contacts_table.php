@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -25,6 +26,7 @@ class CreateContactsTable extends Migration
             $table->string('name');
             $table->string('tax_payer_name')->nullable();
             $table->string('tax_payer_number')->nullable();
+            $table->string('tax_payer_type');
             $table->string('identification_number')->nullable();
             $table->string('insurance_number')->nullable();
             $table->foreignIdFor(User::class)->nullable();
@@ -52,7 +54,7 @@ class CreateContactsTable extends Migration
             $table->string('postal_code')->nullable();
             $table->decimal('latitude', 18, 12)->nullable();
             $table->decimal('longitude', 18, 12)->nullable();
-            $table->foreignIdFor(\App\Models\Team::class);
+            $table->foreignIdFor(Team::class);
             $table->foreignIdFor(User::class, 'author_user_id')->nullable();
             $table->foreignIdFor(User::class, 'updated_by_user_id')->nullable();
             $table->decimal('credit_value', 50, 2);

@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $kind
  * @property int $team_id
  * @property bool $enabled
+ * @proeprty string $code
+ * @property int $parent_id
  * @property int $author_user_id
  * @property-read \Carbon\Carbon $created_at
  * @property-read \Carbon\Carbon $updated_at
@@ -25,18 +27,21 @@ class Attribute extends Model
 {
     use HasFactory, SoftDeletes;
 
-
     public const KIND_DENTAL_CAREER = 'career';
     public const KIND_DENTAL_INSURANCE = 'dental_insurance';
     public const KIND_DENTAL_PROCEDURE = 'dental_procedure';
     public const KIND_DENTAL_DIAGNOSIS = 'dental_diagnosis';
-
+    public const KIND_GENERAL_TAX_PAYER_TYPE='tax_payer_type';
     public const KIND_AD_SOURCE = 'ads_source';
 
     public const KIND_GENERAL_CATEGORY = 'category';
 
-    public const KIND_BUDGET_CATEGORY = 'budget_category';
-    public const KIND_BUDGET_SUBCATEGORY = 'budget_subcategory';
+    public const KIND_CATALOG_ACCOUNTING = 'catalog';
+    public const KIND_BUDGET = 'budget';
+
+    public const KIND_COUNTRY = 'country';
+    public const KIND_CITY = 'city';
+    public const KIND_STATE = 'state';
 
     public const KINDS = [
         self::KIND_AD_SOURCE,
@@ -44,12 +49,19 @@ class Attribute extends Model
         self::KIND_DENTAL_CAREER,
         self::KIND_DENTAL_PROCEDURE,
         self::KIND_DENTAL_DIAGNOSIS,
-        self::KIND_BUDGET_CATEGORY,
-        self::KIND_BUDGET_SUBCATEGORY,
+        self::KIND_CATALOG_ACCOUNTING,
+        self::KIND_BUDGET,
     ];
 
+    protected $table = 'attributes';
 
-    protected $casts = ['enabled' => 'boolean'];
+    protected $casts = [
+        'enabled'        => 'boolean',
+        'system_default' => 'boolean',
+        'amount_credit'  => 'float',
+        'amount_debit'   => 'float',
+        'data'           => 'array',
+    ];
 
     protected $fillable = [
         'name',
@@ -58,9 +70,31 @@ class Attribute extends Model
         'team_id',
         'author_user_id',
         'enabled',
+        'data',
+        'parent_id',
+        'code',
+        'system_default',
     ];
 
-    public function team() {
+    protected static function booted()
+    {
+        parent::booted();
+        static::creating(function (Attribute $attribute) {
+            if (!$attribute->code) {
+                $attribute->code = static::where('team_id', $attribute->team_id)
+                        ->where('kind', $attribute->kind)
+                        ->count() + 1;
+            }
+        });
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(static::class, 'parent_id');
+    }
+
+    public function team()
+    {
         return $this->belongsTo(Team::class);
     }
 }

@@ -24,9 +24,9 @@ class TeamObserver
             $team
                 ->insurances()
                 ->firstOrCreate([
-                    'name' => $insurance,
-                    'kind' => Attribute::KIND_DENTAL_INSURANCE,
-                    'author_user_id'=> $team->user_id
+                    'name'           => $insurance,
+                    'kind'           => Attribute::KIND_DENTAL_INSURANCE,
+                    'author_user_id' => $team->user_id,
                 ]);
         }
     }
@@ -109,28 +109,63 @@ class TeamObserver
 
     public function createBaseSequences(Team $team): void
     {
-        $types = Document::KINDS;
+        $fiscals = collect(config("ogo.{$team->country}.contributors.fiscal"));
+        $types = collect(config("ogo.{$team->country}.contributors.types"))->keys()->toArray();
 
-        foreach ($types as $type) {
-            if ($team->sequencesNotExpired()->where("types->{$type}", true)->exists()) {
-                continue;
+        $fiscals->each(function ($item, $prefix) use ($team, $types) {
+
+            if (!$item['enabled']) {
+                return;
             }
 
             $team->sequences()->create([
-                'title' => __("document.{$type}"),
-                'subtitle' => null,
-                'prefix' => $type,
-                'types' => [$type => true],
-                'length' => 6,
+                'title'           => $item['title'],
+                'subtitle'        => null,
+                'prefix'          => $prefix,
+                'types'           => collect($item['documents'])->mapWithKeys(fn($docType) => [$docType => true])->toArray(),
+                'tax_payer_types' => $types,
+                'length'          => $item['length'],
                 'initial_counter' => 1,
-                'maximum' => 2000,
-                'expire_at' => now()->addMonths(12)->format('Y-m-d'),
-                'author_user_id' => $team->user_id,
+                'maximum'         => 100,
+                'is_default'      => true,
+                'expire_at'       => now()->addMonths(12)->format('Y-m-d'),
+                'author_user_id'  => $team->user_id,
             ]);
-        }
+        });
+
+        $team->sequences()->create([
+            'title'           => __('Payment Receipt'),
+            'subtitle'        => null,
+            'prefix'          => Document::KIND_PAYMENT_RECEIPT,
+            'types'           => [
+                Document::KIND_PAYMENT_RECEIPT => true,
+            ],
+            'tax_payer_types' => $types,
+            'length'          => 6,
+            'initial_counter' => 1,
+            'maximum'         => 10000,
+            'expire_at'       => null,
+            'author_user_id'  => $team->user_id,
+        ]);
+
+        $team->sequences()->create([
+            'title'           => __('Invoice Budget'),
+            'subtitle'        => null,
+            'prefix'          => Document::KIND_INVOICE_BUDGET,
+            'types'           => [
+                Document::KIND_INVOICE_BUDGET => true,
+            ],
+            'tax_payer_types' => $types,
+            'length'          => 6,
+            'initial_counter' => 1,
+            'maximum'         => 10000,
+            'expire_at'       => null,
+            'author_user_id'  => $team->user_id,
+        ]);
     }
 
-    public function creating(Team $team) {
+    public function creating(Team $team)
+    {
 
         if (is_null($team->currency)) {
 
@@ -190,7 +225,7 @@ class TeamObserver
     /**
      * Handle the Team "updated" event.
      *
-     * @param \App\Models\Team $team
+     * @param  \App\Models\Team  $team
      *
      * @return void
      */
@@ -202,7 +237,7 @@ class TeamObserver
     /**
      * Handle the Team "deleted" event.
      *
-     * @param \App\Models\Team $team
+     * @param  \App\Models\Team  $team
      *
      * @return void
      */
@@ -214,7 +249,7 @@ class TeamObserver
     /**
      * Handle the Team "restored" event.
      *
-     * @param \App\Models\Team $team
+     * @param  \App\Models\Team  $team
      *
      *
      * @return void
@@ -227,7 +262,7 @@ class TeamObserver
     /**
      * Handle the Team "force deleted" event.
      *
-     * @param \App\Models\Team $team
+     * @param  \App\Models\Team  $team
      *
      * @return void
      */

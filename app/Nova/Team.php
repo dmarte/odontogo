@@ -8,10 +8,13 @@ use Dniccum\PhoneNumber\PhoneNumber;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Avatar;
+use Laravel\Nova\Fields\Country;
 use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\Hidden;
 use Laravel\Nova\Fields\ID;
+use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\Timezone;
 use Laravel\Nova\Http\Requests\ActionRequest;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
@@ -83,6 +86,8 @@ class Team extends Resource
      */
     public function fields(Request $request)
     {
+        $currency = $this->model()?->currency ?? $this->resource?->currency ?? $request->user()->team->currency ?? config('nova.currency');
+
         return [
             ID::make(__('ID'), 'id')->hideFromIndex(),
             Avatar::make(__('Logo'), 'avatar_path')
@@ -90,6 +95,14 @@ class Team extends Resource
             ->disableDownload()
             ->squared(),
             Text::make(__('Name'), 'name'),
+            Timezone::make(__('Time zone'), 'time_zone'),
+            Country::make(__('Country'), 'country'),
+            Select::make(__('Currency'), 'currency')
+                ->rules(['required', 'size:3'])
+                ->options(collect(config('ogo.currencies'))->mapWithKeys(function ($currency) {
+                    return [$currency => __($currency)];
+                }))
+                ->default($currency),
             PhoneNumber::make(__('Primary phone'), 'phone_primary')
                 ->disableValidation(),
             PhoneNumber::make(__('Secondary phone'), 'phone_secondary')
