@@ -5,6 +5,6 @@ use Illuminate\Support\Facades\Storage
 @auth()
 
     @if(auth()->user()->team->avatar_path)
-        <img src="{{ Storage::disk($team->avatar_disk)->url($team->avatar_path)}}" alt="">
+        <img src="{{ Storage::disk(auth()->user()->team->avatar_disk)->url(auth()->user()->team->avatar_path)}}" />
     @endif
 @endauth
