@@ -229,8 +229,15 @@ class Budget extends Resource
     public function actions(Request $request)
     {
         return [
-            (new PrintBudgetAction())->withoutConfirmation()->showOnTableRow()->shownOnDetail(),
-            (new SendBudgetByEmailAction())->showOnTableRow()->confirmButtonText(__('Send budget'))->showOnDetail(),
+            (new PrintBudgetAction())
+                ->showOnDetail()
+                ->withoutConfirmation()
+                ->showOnTableRow(),
+            (new SendBudgetByEmailAction())
+                ->showOnDetail()
+                ->showOnTableRow()
+                ->confirmButtonText(__('Send budget'))
+            ,
         ];
     }
 }
