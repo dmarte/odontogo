@@ -119,8 +119,6 @@ class Team extends Resource
             Hidden::make('user_id')
                 ->default($request->user()->id)
                 ->showOnCreating(),
-            Hidden::make('user_id')
-                ->showOnUpdating(),
             Color::make(__('Primary color'), 'primary_color')
                 ->swatches()
                 ->help(__('Primary color is used in budget and invoices.'))
