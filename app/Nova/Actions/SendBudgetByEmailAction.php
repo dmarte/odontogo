@@ -4,6 +4,7 @@ namespace App\Nova\Actions;
 
 use App\Models\Contact;
 use App\Notifications\BudgetSendNotification;
+use App\Notifications\BudgetSentNotifyUser;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -36,8 +37,7 @@ class SendBudgetByEmailAction extends Action
     public function handle(ActionFields $fields, Collection $models)
     {
         //
-
-//        try {
+        try {
             /** @var Contact $contact */
             $contact = Contact::findOrFail($fields->get('to'));
             $contact->notify(
@@ -50,12 +50,14 @@ class SendBudgetByEmailAction extends Action
             );
             // Be sure to delete any generated pdf
             $models->each(fn($model) => $model->pdf->remove());
-//        } catch (Exception $exception) {
-//
-//            Log::error($exception->getMessage());
-//
-//            return Action::danger(__('Something wrong while trying to send the budget.'));
-//        }
+
+            request()->user()->notify(new BudgetSentNotifyUser($models, $contact));
+        } catch (Exception $exception) {
+
+            Log::error($exception->getMessage());
+
+            return Action::danger(__('Something wrong while trying to send the budget.'));
+        }
 
         return Action::message(__('The budget has been sent.'));
     }

@@ -48,8 +48,7 @@ class BudgetSendNotification extends Notification
             ->subject("{$this->author->team->name} / {$this->subject} ({$this->budgets->pluck('code')->join(', ')})")
             ->replyTo($this->author->email)
             ->line($this->message)
-            ->line(__('We appreciate you\'re part of us.'))
-        ;
+            ->line(__('We appreciate you\'re part of us.'));
         $mail->viewData['team'] = $this->author->team;
         $mail->viewData['author'] = $this->author;
 

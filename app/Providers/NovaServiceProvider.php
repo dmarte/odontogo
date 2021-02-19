@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Gate;
 use Laravel\Nova\Nova;
 use Laravel\Nova\NovaApplicationServiceProvider;
 use Laravel\Nova\Tools\Dashboard;
+use Mirovit\NovaNotifications\NovaNotifications;
 
 class NovaServiceProvider extends NovaApplicationServiceProvider
 {
@@ -75,7 +76,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     public function tools()
     {
         return [
-//            \Mirovit\NovaNotifications\NovaNotifications::make(),
+            NovaNotifications::make(),
         ];
     }
 

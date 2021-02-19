@@ -39,12 +39,17 @@ class UserInvitation extends Notification
      */
     public function toMail($notifiable)
     {
-        return (new MailMessage)
+        $mail = (new MailMessage)
             ->greeting(__('Hello user', ['name' => $this->user->name]))
             ->line(__('Invitation line 1', ['author' => $this->team->user->name, 'team' => $this->team->name]))
             ->line(__('Invitation line 2', ['password'=> $this->password]))
             ->action(__('Activate my membership'), route('invitation.join', ['team' => $this->team->id, 'token' => $this->member->token]))
             ->line(__('Thank you for using our application'));
+
+        $mail->viewData['author'] = $this->user;
+        $mail->viewData['team'] = $this->user->team;
+
+        return $mail;
     }
 
     /**
@@ -56,8 +61,11 @@ class UserInvitation extends Notification
      */
     public function toArray($notifiable)
     {
-        return [
-            //
-        ];
+        return \Mirovit\NovaNotifications\Notification::make()
+            ->info(__('User invited'))
+            ->subtitle(__('The user :user was invited to join to the company.', [
+                'user' => $this->user->name,
+            ]))
+            ->toArray();
     }
 }
