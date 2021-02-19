@@ -542,7 +542,7 @@ class BudgetPrinter extends Printer
 
         $path = Storage::disk($disk)->path("{$this->model->team_id}/documents/{$this->model->code}.pdf");
 
-        Storage::disk($disk)->makeDirectory($path);
+        Storage::disk($disk)->makeDirectory("{$this->model->team_id}/documents");
 
         parent::render($path, 'F');
 
