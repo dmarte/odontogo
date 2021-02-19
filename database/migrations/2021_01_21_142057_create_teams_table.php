@@ -21,6 +21,7 @@ class CreateTeamsTable extends Migration
             $table->string('avatar_path')->nullable();
             $table->string('avatar_disk')->default('public');
             $table->bigInteger('avatar_size')->default(0);
+            $table->string('vat', 40)->nullable();
             $table->string('phone_primary')->nullable();
             $table->string('phone_secondary')->nullable();
             $table->string('address_line_1')->nullable();
