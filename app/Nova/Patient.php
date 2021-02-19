@@ -159,6 +159,21 @@ class Patient extends Resource
                 ])
                 ->hideFromIndex(),
             Text::make(__("{$country}_identification_number"), 'identification_number')
+                ->creationRules([
+                    'bail',
+                    'nullable',
+                    Rule::unique('contacts', 'identification_number')
+                        ->where('kind', Contact::KIND_PATIENT)
+                        ->where('team_id', request()->user()->team->id),
+                ])
+                ->updateRules([
+                    'bail',
+                    'nullable',
+                    Rule::unique('contacts', 'identification_number')
+                        ->where('kind', Contact::KIND_PATIENT)
+                        ->where('team_id', request()->user()->team->id)
+                        ->ignore('{resourceId}'),
+                ])
                 ->hideFromIndex(),
 
             Text::make(__('Job company'), 'company')

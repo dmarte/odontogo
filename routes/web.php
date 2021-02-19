@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DocumentToPdfController;
 use App\Http\Controllers\UserInvitationController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,3 +16,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('activate/{team}/{token}', UserInvitationController::class)->name('invitation.join');
+
+Route::get('pdf/budget/{budget}', [DocumentToPdfController::class, 'budget'])
+    ->name('print.budget')
+    ->middleware('auth');

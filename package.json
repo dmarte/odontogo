@@ -10,8 +10,13 @@
         "production": "mix --production"
     },
     "devDependencies": {
+        "autoprefixer": "^10.2.4",
         "laravel-mix": "^6.0.6",
-        "postcss": "^8.2.6"
+        "postcss": "^8.2.6",
+        "tailwindcss": "^2.0.3"
     },
-    "dependencies": {}
+    "dependencies": {
+        "laravel-echo": "^1.10.0",
+        "pusher-js": "^7.0.3"
+    }
 }

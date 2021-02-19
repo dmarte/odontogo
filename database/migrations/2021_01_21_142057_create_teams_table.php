@@ -24,6 +24,8 @@ class CreateTeamsTable extends Migration
             $table->string('phone_primary')->nullable();
             $table->string('phone_secondary')->nullable();
             $table->string('address_line_1')->nullable();
+            $table->string('address_line_2')->nullable();
+            $table->string('primary_color')->default('#5e5e5e');
             $table->string('email')->nullable();
             $table->char('country', 2)->default('DO');
             $table->char('currency', 3)->default('DOP');

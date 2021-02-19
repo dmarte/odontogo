@@ -20,6 +20,7 @@ use Illuminate\Support\Str;
  * @property int                                                             $user_id
  * @property string                                                          $country
  * @property string                                                          $currency
+ * @property string $vat
  * @property string $avatar_path
  * @property string $avatar_disk
  * @property int $avatar_size
@@ -43,6 +44,7 @@ class Team extends Model
     ];
     protected $fillable = [
         'name',
+        'vat',
         'avatar_path',
         'avatar_disk',
         'avatar_size',
@@ -55,7 +57,13 @@ class Team extends Model
         'currency',
         'locale',
         'time_zone',
+        'address_line_2',
+        'primary_color'
     ];
+
+    public function contacts() : HasMany {
+        return $this->hasMany(Contact::class);
+    }
 
     public function user(): BelongsTo
     {

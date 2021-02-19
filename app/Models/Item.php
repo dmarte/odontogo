@@ -16,4 +16,12 @@ use Whitecube\NovaFlexibleContent\Concerns\HasFlexible;
 class Item extends Child
 {
     use HasFlexible;
+
+    public function document() : BelongsTo {
+        return $this->belongsTo(Document::class);
+    }
+
+    public function product() : BelongsTo {
+        return $this->belongsTo(Product::class);
+    }
 }

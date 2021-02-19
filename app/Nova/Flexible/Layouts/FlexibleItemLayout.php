@@ -2,12 +2,14 @@
 
 namespace App\Nova\Flexible\Layouts;
 
+use Laravel\Nova\Fields\Heading;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
+use Whitecube\NovaFlexibleContent\Flexible;
 use Whitecube\NovaFlexibleContent\Layouts\Layout;
 
-class DocumentItemLayout extends Layout
+class FlexibleItemLayout extends Layout
 {
     /**
      * The layout's unique identifier
@@ -23,7 +25,7 @@ class DocumentItemLayout extends Layout
      */
     public function title()
     {
-        return __('Item for quotation');
+        return __('Item');
     }
 
     /**
@@ -40,7 +42,8 @@ class DocumentItemLayout extends Layout
                 ->options(function () {
                     return request()->user()->team->products->mapWithKeys(fn($product
                     ) => [$product->id => $product->name." - ".number_format($product->price)]);
-                }),
+                })
+                ->rules(['required', 'numeric']),
             Number::make(__('Quantity'), 'quantity')
                 ->default(0)
                 ->rules(['required', 'min:0']),
@@ -64,6 +67,14 @@ class DocumentItemLayout extends Layout
                     75 => '75%',
                 ]),
             Text::make(__('Notes'), 'description')->nullable(),
+//            Flexible::make(__('Additional information'), 'data')
+//                ->addLayout(FlexibleDiagnosisLayout::class)
+//                ->menu('flexible-drop-menu', [
+//                    'class'=>'bg-info'
+//                ])
+//                ->limit(1)
+//                ->button(__('Add detail'))
+//                ->fullWidth()
         ];
     }
 

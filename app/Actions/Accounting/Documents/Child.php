@@ -4,19 +4,13 @@
 namespace App\Actions\Accounting\Documents;
 
 use App\Actions\Accounting\Interfaces\Summarizable;
-use App\Actions\Accounting\Interfaces\Transformable;
 use App\Actions\Accounting\Traits\HasDocumentSharedData;
 use App\Models\Contact;
-use App\Models\Document;
-use App\Models\Item;
-use App\Models\Product;
-use App\Models\Team;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Arr;
 
 /**
  * Class DocumentItem
+ *
  * @package App\Actions\Accounting
  * @property-read int $id
  * @property string $title
@@ -27,7 +21,7 @@ use Illuminate\Support\Arr;
  * @property array $data
  * @method static static create(array $array)
  */
-class Child extends Model implements Transformable, Summarizable
+class Child extends Model implements Summarizable
 {
     use HasDocumentSharedData;
 
@@ -37,20 +31,78 @@ class Child extends Model implements Transformable, Summarizable
     public $table = 'documents_items';
 
     protected $casts = [
-        'data' => 'array'
+        'data'          => 'array',
+        'discount_rate' => 'float',
+        'quantity'      => 'int',
+        'price'         => 'float',
+        'amount'        => 'float',
+        'discounts'     => 'float',
+        'taxes'         => 'float',
+        'subtotal'      => 'float',
+        'total'         => 'float',
+        'amount_paid'   => 'float',
+        'balance'       => 'float',
+        'change'        => 'float',
+        'paid'          => 'boolean',
+        'completed'     => 'boolean',
+        'cancelled'     => 'boolean',
+        'verified'      => 'boolean',
+        'emitted_at'    => 'date:Y-m-d',
+        'expire_at'     => 'date:Y-m-d',
+        'paid_at'       => 'date:Y-m-d',
+        'completed_at'  => 'date:Y-m-d',
+        'verified_at'   => 'date:Y-m-d',
+        'deleted_at'    => 'date:Y-m-d',
+        'cancelled_at'  => 'date:Y-m-d',
     ];
 
     protected $fillable = [
         'document_id',
         'product_id',
         'discount_rate',
+        'title',
+        'description',
+        'currency',
+        'quantity',
+        'price',
+        'amount',
+        'amount_paid',
+        'price',
+        'taxes',
+        'discounts',
+        'subtotal',
+        'total',
+        'balance',
+        'change',
+        'paid',
+        'completed',
+        'cancelled',
+        'verified',
+        'expire_at',
+        'emitted_at',
+        'paid_at',
+        'completed_at',
+        'cancelled_at',
+        'verified_at',
+        'team_id',
+        'category_attribute_id',
+        'subcategory_attribute_id',
+        'provider_contact_id',
+        'receiver_contact_id',
+        'paid_by_contact_id',
+        'author_user_id',
+        'completed_by_user_id',
+        'cancelled_by_user_id',
+        'updated_by_user_id',
+        'deleted_by_user_id',
     ];
 
-    public function sanitize() :void {
-        $this->data = ChildData::build($this->data)->toArray();
+    public function sanitize(): void
+    {
+        $this->currency = $this->currency ?? $this->document->currency;
+        $this->team_id = $this->document->team_id;
         $this->price = $this->product->price;
         $this->summarize();
-        $this->document->summarize();
     }
 
     public static function booted()
@@ -59,125 +111,30 @@ class Child extends Model implements Transformable, Summarizable
             $child->sanitize();
         });
 
-        static::updated(function(Child $child) {
+        static::created(function (Child $child) {
+            $child->document->summarize();
+            $child->document->buildTitle();
+            $child->document->save();
+        });
+
+        static::updating(function (Child $child) {
             $child->sanitize();
         });
 
-        static::deleted(function(Child $child) {
+        static::updated(function (Child $child) {
+            $child->document->summarize();
+            $child->document->buildTitle();
+            $child->document->save();
+        });
+
+        static::deleted(function (Child $child) {
             $this->document->summarize();
+            $child->document->summarize();
+            $child->document->buildTitle();
+            $child->document->save();
         });
 
         parent::booted();
-    }
-
-    public static function register(Head $head, Team $team, array $resource): static
-    {
-        Arr::set($resource, 'document.id', $head->id);
-        Arr::set($resource, 'team.id', $team->id);
-        Arr::set($resource, 'author.creator.id', $team->membership->user_id);
-        Arr::set($resource, 'author.updated.id', $team->membership->user_id);
-
-        $model = new static(
-            static::toModelArray($resource)
-        );
-
-        $model->save();
-
-        return $model;
-    }
-
-    public static function toModelArray(array $resource): array
-    {
-        return [
-            'title' => Arr::get($resource, 'title'),
-            'description' => Arr::get($resource, 'description'),
-            'data' => Arr::get($resource, 'data'),
-            'currency' => Arr::get($resource, 'summary.currency', Arr::get($resource, 'currency', 'USD')),
-            'product_id' => Arr::get($resource, 'product.id'),
-            'quantity' => Arr::get($resource, 'summary.quantity'),
-            'amount' => Arr::get($resource, 'summary.amount'),
-            'price' => (float) Arr::get($resource, 'summary.price'),
-            'taxes' => (float) Arr::get($resource, 'summary.taxes'),
-            'discounts' => (float) Arr::get($resource, 'summary.discounts'),
-            'subtotal' => (float) Arr::get($resource, 'summary.subtotal'),
-            'total' => (float) Arr::get($resource, 'summary.total'),
-            'amount_paid' => (float) Arr::get($resource, 'summary.paid'),
-            'balance' => (float) Arr::get($resource, 'summary.balance'),
-            'change' => (float) Arr::get($resource, 'summary.change'),
-            'paid' => (bool) Arr::get($resource, 'status.paid', false),
-            'completed' => (bool) Arr::get($resource, 'status.completed', false),
-            'verified' => (bool) Arr::get($resource, 'status.verified', false),
-            'emitted_at' => Arr::get($resource, 'date.emitted'),
-            'expire_at' => Arr::get($resource, 'date.expire'),
-            'completed_at' => Arr::get($resource, 'date.completed'),
-            'cancelled_at' => Arr::get($resource, 'date.cancelled'),
-            'category_attribute_id' => Arr::get($resource, 'category.id'),
-            'subcategory_attribute_id' => Arr::get($resource, 'subcategory.id'),
-            'provider_contact_id' => Arr::get($resource, 'provider.id'),
-            'receiver_contact_id' => Arr::get($resource, 'receiver.id'),
-            'author_user_id' => Arr::get($resource, 'author.id'),
-            'team_id' => Arr::get($resource, 'team.id'),
-            'document_id' => Arr::get($resource, 'document.id'),
-        ];
-    }
-
-    /**
-     * @param  Item  $model
-     * @return array
-     */
-    public static function toResourceArray(Model $model): array
-    {
-        return [
-            'id' => $model->id,
-            'title' => $model->title,
-            'description' => $model->description,
-            'document' => ['id' => $model->document_id],
-            'product' => ['id' => $model->product_id],
-            'provider' => ['id' => $model->provider_contact_id],
-            'receiver' => ['id' => $model->receiver_contact_id],
-            'category' => ['id' => $model->category_attribute_id],
-            'subcategory' => ['id' => $model->subcategory_attribute_id],
-            'data' => $model->data,
-            'summary' => [
-                'currency' => $model->currency,
-                'quantity' => $model->quantity,
-                'amount' => $model->amount,
-                'price' => $model->price,
-                'taxes' => $model->taxes,
-                'discounts' => $model->discounts,
-                'subtotal' => $model->subtotal,
-                'total' => $model->total,
-                'balance' => $model->balance,
-                'paid' => $model->amount_paid,
-                'change' => $model->change,
-            ],
-            'status' => [
-                'paid' => $model->paid,
-                'completed' => $model->completed,
-                'cancelled' => $model->cancelled,
-                'verified' => $model->verified,
-            ],
-            'date' => [
-                'emitted' => $model->emitted_at?->format('Y-m-d'),
-                'expire' => $model->expire_at?->format('Y-m-d'),
-                'paid' => $model->paid_at?->format('Y-m-d'),
-                'completed' => $model->completed_at?->format('Y-m-d'),
-                'cancelled' => $model->cancelled_at?->format('Y-m-d'),
-                'verified' => $model->verified_at?->format('Y-m-d'),
-            ]
-        ];
-    }
-
-    public static function buildFromAggregationArray(array $aggregation): static
-    {
-        return self::buildFromArrayResource([
-            'data' => $aggregation,
-            'summary' => [
-                'quantity' => 1,
-                'price' => $aggregation['value'] ?? 0,
-                'paid' => $aggregation['type'] === Aggregation::VALUE_TYPE_PAYMENT ? $aggregation['value'] : 0,
-            ]
-        ])->summarize();
     }
 
     public function summary(string $field): float|int
@@ -229,7 +186,7 @@ class Child extends Model implements Transformable, Summarizable
             return 0;
         }
 
-        return $this->summarizedPrice() - (($this->discount_rate * $this->price) / 100);
+        return ((($this->discount_rate * $this->summarizedPrice()) / 100) * $this->summarizedQuantity()) * -1;
     }
 
     public function data(): ChildData
@@ -293,13 +250,5 @@ class Child extends Model implements Transformable, Summarizable
 
         return $amount;
 
-    }
-
-    public function document() : BelongsTo {
-        return $this->belongsTo(Document::class);
-    }
-
-    public function product() : BelongsTo {
-        return $this->belongsTo(Product::class);
     }
 }

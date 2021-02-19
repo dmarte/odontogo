@@ -3,17 +3,21 @@
 namespace App\Nova;
 
 use App\Models\Document;
+use App\Nova\Actions\PrintBudgetAction;
+use App\Nova\Actions\SendBudgetByEmailAction;
 use App\Nova\Flexible\Presets\DocumentItemPreset;
+use Eminiarts\Tabs\Tabs;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Currency;
 use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\Heading;
 use Laravel\Nova\Fields\Hidden;
-use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Number;
+use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use NovaButton\Button;
 use Techouse\IntlDateTime\IntlDateTime;
 use Whitecube\NovaFlexibleContent\Flexible;
 
@@ -31,6 +35,11 @@ class Budget extends Resource
     ];
 
     public static $priority = 1;
+
+    public static function softDeletes()
+    {
+        return false;
+    }
 
     public function title()
     {
@@ -55,6 +64,10 @@ class Budget extends Resource
     public static function singularLabel()
     {
         return __('Budget');
+    }
+
+    public function fieldsForUpdate(NovaRequest $request) {
+        return $this->fieldsForCreate($request);
     }
 
     public function fieldsForCreate(NovaRequest $request)
@@ -90,46 +103,83 @@ class Budget extends Resource
                 ->showCreateRelationButton()
                 ->rules(['required', 'numeric']),
             Text::make(__('Notes'), 'description')->nullable(),
-            Flexible::make(__('Procedures'), 'procedures')->preset(DocumentItemPreset::class, ['model' => $this->model()]),
+            Flexible::make(__('Procedures'), 'procedures')
+                ->preset(DocumentItemPreset::class, ['model' => $this->model()])
+                ->rules([
+                    'required',
+                    'array',
+                    'min:1',
+                ]),
         ];
     }
 
-    public function fieldsForDetail(Request $request) {
+    public function fieldsForDetail(Request $request)
+    {
         return [
-            Heading::make(__('Administrative area')),
-            Number::make(__('Budget number'), 'sequence_number'),
-            Text::make(__('Budget Id'),'sequence_value'),
-            BelongsTo::make(__('Sequence'), 'sequence', Sequence::class)->withoutTrashed()->withSubtitles(),
-
-            Heading::make(__('Budget detail')),
-            IntlDateTime::make(__('Emitted at'), 'emitted_at')->hideUserTimeZone()->dateFormat('DD/MM/YYYY'),
-            IntlDateTime::make(__('Expire at'), 'expire_at')->hideUserTimeZone()->dateFormat('DD/MM/YYYY'),
-            BelongsTo::make(__('Doctor'), 'provider', Doctor::class)->withoutTrashed()->withSubtitles(),
-            BelongsTo::make(__('Patient'), 'receiver', Patient::class)->withoutTrashed()->withSubtitles(),
-            BelongsTo::make(__('Created by'), 'author', User::class)->withoutTrashed()->withSubtitles(),
-
-            Heading::make(__('Summary')),
-            Number::make(__('Discounts'), 'discounts'),
-            Number::make(__('Subtotal'), 'subtotal'),
-            Number::make(__('Taxes'),'taxes'),
-            Currency::make(__('Total'),'total')->currency($this->resource?->currency),
+            new Tabs('Administrative area', [
+                __('Summary') => [
+                    Text::make(__('Budget code'), 'code'),
+                    Number::make(__('Discounts'), 'discounts')->displayUsing(fn($value) => number_format($value)),
+                    Number::make(__('Subtotal'), 'subtotal')->displayUsing(fn($value) => number_format($value)),
+                    Number::make(__('Taxes'), 'taxes')->displayUsing(fn($value) => number_format($value)),
+                    Currency::make(__('Total'), 'total')->locale('en-US')->currency($this->resource?->currency),
+                ],
+                __('Budget detail') => [
+                    IntlDateTime::make(__('Emitted at'), 'emitted_at')->hideUserTimeZone()->dateFormat('DD/MM/YYYY'),
+                    IntlDateTime::make(__('Expire at'), 'expire_at')->hideUserTimeZone()->dateFormat('DD/MM/YYYY'),
+                    BelongsTo::make(__('Doctor'), 'provider', Doctor::class)->withoutTrashed()->withSubtitles(),
+                    BelongsTo::make(__('Patient'), 'receiver', Patient::class)->withoutTrashed()->withSubtitles(),
+                    BelongsTo::make(__('Created by'), 'author', User::class)->withoutTrashed()->withSubtitles(),
+                ],
+                __('Administrative area') => [
+                    Select::make(__('Document type'), 'kind')->options(__('document'))->displayUsingLabels(),
+                    Text::make(__('Budget code'), 'code'),
+                    Number::make(__('Budget number'), 'sequence_number'),
+                    Text::make(__('Budget sequence'), 'sequence_value'),
+                    BelongsTo::make(__('Sequence reference'), 'sequence', Sequence::class)->withoutTrashed()->withSubtitles(),
+                    BelongsTo::make(__('Created by'), 'author', User::class),
+                ],
+            ]),
             HasMany::make(__('Procedures'), 'items', BudgetItem::class),
+        ];
+    }
+
+    public function fieldsForIndex()
+    {
+        return [
+            Text::make(__('Budget sequence'), 'sequence_value'),
+            IntlDateTime::make(__('Emitted at'), 'emitted_at')->hideUserTimeZone()->dateFormat('DD/MM/YYYY'),
+            BelongsTo::make(__('Doctor'), 'provider', Doctor::class)
+                ->viewable(false)
+                ->withoutTrashed()
+                ->searchable()
+                ->withSubtitles()
+                ->showCreateRelationButton(),
+            BelongsTo::make(__('Patient'), 'receiver', Patient::class)
+                ->viewable(false)
+                ->withoutTrashed()
+                ->searchable()
+                ->withSubtitles(),
+            Number::make(__('Discounts'), 'discounts')->displayUsing(fn($value) => number_format($value)),
+            Number::make(__('Total'), 'total')->displayUsing(fn($value) => number_format($value)),
         ];
     }
 
     public function fields(Request $request)
     {
         return [
-            Text::make(__('Code'),'code')->sortable(),
-            Text::make(__('Sequence'), 'sequence_value')->sortable(),
             BelongsTo::make(__('Doctor'), 'provider', Doctor::class)
+                ->viewable(false)
                 ->withoutTrashed()
                 ->searchable()
-                ->withSubtitles(),
+                ->withSubtitles()
+                ->showCreateRelationButton(),
             BelongsTo::make(__('Patient'), 'receiver', Patient::class)
+                ->viewable(false)
                 ->withoutTrashed()
                 ->searchable()
                 ->withSubtitles(),
+            HasMany::make(__('Procedures'), 'items', BudgetItem::class),
         ];
     }
 
@@ -178,6 +228,9 @@ class Budget extends Resource
      */
     public function actions(Request $request)
     {
-        return [];
+        return [
+            (new PrintBudgetAction())->withoutConfirmation()->showOnTableRow(),
+            (new SendBudgetByEmailAction())->showOnTableRow()->confirmButtonText(__('Send budget')),
+        ];
     }
 }

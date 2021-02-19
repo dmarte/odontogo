@@ -11,12 +11,12 @@ use Laravel\Nova\Fields\Avatar;
 use Laravel\Nova\Fields\Country;
 use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\Hidden;
-use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Timezone;
 use Laravel\Nova\Http\Requests\ActionRequest;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Timothyasp\Color\Color;
 
 class Team extends Resource
 {
@@ -80,7 +80,7 @@ class Team extends Resource
     /**
      * Get the fields displayed by the resource.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      *
      * @return array
      */
@@ -89,12 +89,12 @@ class Team extends Resource
         $currency = $this->model()?->currency ?? $this->resource?->currency ?? $request->user()->team->currency ?? config('nova.currency');
 
         return [
-            ID::make(__('ID'), 'id')->hideFromIndex(),
             Avatar::make(__('Logo'), 'avatar_path')
                 ->store(new UploadAvatar)
-            ->disableDownload()
-            ->squared(),
-            Text::make(__('Name'), 'name'),
+                ->disableDownload()
+                ->squared(),
+            Text::make(__(strtolower($request->user()->country)."_tax_payer_name"), 'name'),
+            Text::make(__(strtolower($request->user()->country)."_tax_payer_number"), 'vat')->nullable(),
             Timezone::make(__('Time zone'), 'time_zone'),
             Country::make(__('Country'), 'country'),
             Select::make(__('Currency'), 'currency')
@@ -108,7 +108,8 @@ class Team extends Resource
             PhoneNumber::make(__('Secondary phone'), 'phone_secondary')
                 ->hideFromIndex()
                 ->disableValidation(),
-            Text::make(__('Address'), 'address_line_1')
+            Text::make(__('Address line 1'), 'address_line_1'),
+            Text::make(__('Address line 2'), 'address_line_2')
                 ->hideFromIndex(),
             Text::make(__('Email'), 'email')
                 ->rules([
@@ -120,6 +121,10 @@ class Team extends Resource
                 ->showOnCreating(),
             Hidden::make('user_id')
                 ->showOnUpdating(),
+            Color::make(__('Primary color'), 'primary_color')
+                ->swatches()
+                ->help(__('Primary color is used in budget and invoices.'))
+                ->default('#5e5e5e'),
             HasMany::make(__('Members'), 'members', Member::class),
         ];
     }
@@ -127,7 +132,7 @@ class Team extends Resource
     /**
      * Get the cards available for the request.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      *
      * @return array
      */
@@ -139,7 +144,7 @@ class Team extends Resource
     /**
      * Get the filters available for the resource.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      *
      * @return array
      */
@@ -151,7 +156,7 @@ class Team extends Resource
     /**
      * Get the lenses available for the resource.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      *
      * @return array
      */
@@ -163,7 +168,7 @@ class Team extends Resource
     /**
      * Get the actions available for the resource.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      *
      * @return array
      */

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Notifications\Notification;
 
 /**
  * Class Contact
@@ -54,6 +56,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Contact extends Model
 {
     use HasFactory, SoftDeletes;
+    use Notifiable;
 
     public const GENDER_NONE = 'none';
     public const GENDER_MALE = 'male';
@@ -121,6 +124,11 @@ class Contact extends Model
         'credit_value',
         'credit_days',
     ];
+
+    public function routeNotificationForMail(Notification $notifiable)
+    {
+        return [$this->email_primary ?? $this->email_secondary => $this->name];
+    }
 
     public function sequence(): BelongsTo
     {

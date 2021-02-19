@@ -20,6 +20,14 @@ class DocumentItemResolver implements ResolverInterface
      */
     public function get($resource, $attribute, $layouts)
     {
+        if ($resource->items->count() < 1) {
+            /** @var Layout $layout */
+            $layout = $layouts->find('document_item');
+            $layout->duplicate(1);
+
+            return $layouts;
+        }
+
         return $resource->items
             ->map(function (Item $item) use ($layouts) {
                 /** @var Layout $layout */
@@ -48,11 +56,20 @@ class DocumentItemResolver implements ResolverInterface
 
         $model::saved(function (Budget $budget) use ($groups) {
             /** @var \Illuminate\Database\Eloquent\Collection $products */
-            $products = request()->user()->team->products()->whereIn('id', $groups->pluck('product_id'));
+            $products = request()
+                ->user()
+                ->team
+                ->products()
+                ->whereIn('id', $groups->pluck('product_id'))
+                ->get();
 
             $items = $groups->map(function (Layout $item) use ($budget, $products) {
                 /** @var \App\Models\Product $product */
-                $product = $products->where('id', $item->getAttribute('product_id'))->first();
+                $product = $products->firstWhere('id',$item->getAttribute('product_id'));
+
+                if (!$product) {
+                    return;
+                }
 
                 return [
                     'currency'                 => $budget->currency,

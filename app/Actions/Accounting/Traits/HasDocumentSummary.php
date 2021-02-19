@@ -58,7 +58,6 @@ trait HasDocumentSummary
 
             $values[$field] = $this->{$method}();
         }
-
         $this->fill($values);
 
         $this->paid = $this->amount_paid >= $this->total;
