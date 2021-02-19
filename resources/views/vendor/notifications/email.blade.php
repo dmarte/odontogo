@@ -45,8 +45,12 @@
 {{ $salutation }}
 @else
 @lang('Regards'),<br>
+@isset($author)
 ### {{ $author->name }}
 *{{ $author->member->role->name }}*
+@else
+    {{ config('app.name') }}
+@endisset
 @endif
 
 {{-- Subcopy --}}
