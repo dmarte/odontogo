@@ -95,7 +95,7 @@ class Service extends Resource
                     'required',
                     'min:0',
                 ])
-                ->currency($this->resource?->currency)
+                ->currency($this->resource?->currency ?? config('nova.currency'))
                 ->locale('en')
                 ->sortable(),
             BelongsTo::make(__('Area'), 'career', Careers::class)

@@ -66,7 +66,7 @@ class FlexibleItemLayout extends Layout
                     70 => '70%',
                     75 => '75%',
                 ]),
-            Text::make(__('Notes'), 'description')->nullable(),
+            Text::make(__('Description'), 'description')->nullable(),
 //            Flexible::make(__('Additional information'), 'data')
 //                ->addLayout(FlexibleDiagnosisLayout::class)
 //                ->menu('flexible-drop-menu', [
