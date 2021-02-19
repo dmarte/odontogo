@@ -1,4 +1,4 @@
-@component('mail::message', compact('team'))
+@component('mail::message', ['team'=> $team ?? null ])
 {{-- Greeting --}}
 @if (! empty($greeting))
 # {{ $greeting }}
