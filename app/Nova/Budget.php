@@ -116,30 +116,25 @@ class Budget extends Resource
     public function fieldsForDetail(Request $request)
     {
         return [
-            new Tabs('Administrative area', [
-                __('Summary') => [
+                 Heading::make(__('Summary')),
                     Text::make(__('Budget code'), 'code'),
                     Number::make(__('Discounts'), 'discounts')->displayUsing(fn($value) => number_format($value)),
                     Number::make(__('Subtotal'), 'subtotal')->displayUsing(fn($value) => number_format($value)),
                     Number::make(__('Taxes'), 'taxes')->displayUsing(fn($value) => number_format($value)),
                     Currency::make(__('Total'), 'total')->locale('en-US')->currency($this->resource?->currency),
-                ],
-                __('Budget detail') => [
+                Heading::make(__('Budget detail')),
                     IntlDateTime::make(__('Emitted at'), 'emitted_at')->hideUserTimeZone()->dateFormat('DD/MM/YYYY'),
                     IntlDateTime::make(__('Expire at'), 'expire_at')->hideUserTimeZone()->dateFormat('DD/MM/YYYY'),
                     BelongsTo::make(__('Doctor'), 'provider', Doctor::class)->withoutTrashed()->withSubtitles(),
                     BelongsTo::make(__('Patient'), 'receiver', Patient::class)->withoutTrashed()->withSubtitles(),
                     BelongsTo::make(__('Created by'), 'author', User::class)->withoutTrashed()->withSubtitles(),
-                ],
-                __('Administrative area') => [
+                 Heading::make(__('Administrative area')),
                     Select::make(__('Document type'), 'kind')->options(__('document'))->displayUsingLabels(),
                     Text::make(__('Budget code'), 'code'),
                     Number::make(__('Budget number'), 'sequence_number'),
                     Text::make(__('Budget sequence'), 'sequence_value'),
                     BelongsTo::make(__('Sequence reference'), 'sequence', Sequence::class)->withoutTrashed()->withSubtitles(),
                     BelongsTo::make(__('Created by'), 'author', User::class),
-                ],
-            ]),
             HasMany::make(__('Procedures'), 'items', BudgetItem::class),
         ];
     }
