@@ -60,45 +60,8 @@ class Doctor extends Resource
             Hidden::make('kind')->onlyOnForms()->default(self::KIND),
             Hidden::make('team_id')->showOnCreating()->default($request->user()->team->id),
             new Panel(__('Doctor information'), $this->getFiscalFields($request->user())),
-            new Panel(__('Contact information'), $this->getContactFields($request->user())),
             new Panel(__('Address'), $this->getAddressFields($request->user())),
-            new Panel(__('Credit information'), $this->getCreditFields($request->user())),
-        ];
-    }
-
-    private function getCreditFields(\App\Models\User $user): array
-    {
-        return [
-            Number::make(__('Amount approved'), 'credit_value')->min(0)->default(0),
-            Number::make(__('Credit days'), 'credit_days')->min(1)->max(365)->default(1),
-        ];
-    }
-
-    private function getContactFields(\App\Models\User $user): array
-    {
-        return [
-            Text::make(__('Provider name'), 'name')->nullable(),
-            Text::make(__('Job title'), 'title')->hideFromIndex(),
-            Select::make(__('Gender'), 'gender')
-                ->hideFromIndex()
-                ->required()
-                ->displayUsingLabels()
-                ->default(Contact::GENDER_NONE)
-                ->options(function () {
-                    return [
-                        Contact::GENDER_NONE   => '-',
-                        Contact::GENDER_MALE   => __('Male'),
-                        Contact::GENDER_FEMALE => 'Female',
-                    ];
-                }),
-            PhoneNumber::make(__('Primary phone'), 'phone_primary')
-                ->disableValidation()
-                ->required(),
-            PhoneNumber::make(__('Secondary phone'), 'phone_secondary')->nullable()
-                ->disableValidation()
-                ->onlyOnForms()
-                ->hideFromIndex(),
-            Text::make(__('Email'), 'email_primary')->rules(['email'])->hideFromIndex(),
+//            new Panel(__('Credit information'), $this->getCreditFields($request->user())),
         ];
     }
 
@@ -172,6 +135,26 @@ class Doctor extends Resource
                 ->hideFromIndex()
                 ->withoutTrashed()
                 ->showCreateRelationButton(),
+            Select::make(__('Gender'), 'gender')
+                ->hideFromIndex()
+                ->required()
+                ->displayUsingLabels()
+                ->default(Contact::GENDER_NONE)
+                ->options(function () {
+                    return [
+                        Contact::GENDER_NONE   => '-',
+                        Contact::GENDER_MALE   => __('Male'),
+                        Contact::GENDER_FEMALE => 'Female',
+                    ];
+                }),
+            PhoneNumber::make(__('Primary phone'), 'phone_primary')
+                ->disableValidation()
+                ->required(),
+            PhoneNumber::make(__('Secondary phone'), 'phone_secondary')->nullable()
+                ->disableValidation()
+                ->onlyOnForms()
+                ->hideFromIndex(),
+            Text::make(__('Email'), 'email_primary')->rules(['email'])->hideFromIndex(),
         ];
     }
 
