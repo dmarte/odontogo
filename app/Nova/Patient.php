@@ -342,6 +342,11 @@ class Patient extends Resource
         });
     }
 
+    public static function softDeletes()
+    {
+        return false;
+    }
+
     /**
      * Get the cards available for the request.
      *

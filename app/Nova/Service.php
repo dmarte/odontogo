@@ -28,6 +28,12 @@ class Service extends Resource
         'code',
     ];
 
+
+    public static function softDeletes()
+    {
+        return false;
+    }
+
     public static function group()
     {
         return __('Branch');

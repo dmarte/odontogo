@@ -105,6 +105,7 @@
     "The list of budgets :code where sent on :date by :user": "Los presupuestos :code fueron enviados el :date, por el usuario :user.",
     "The user :user was invited to join to the company.": "El usuario :user ha sido invitado a unirse a la clínica.",
     "Description": "Descripción",
+    "Notifications": "Notificaciones",
     "Notes": "Notas",
     "Email type": "Etiqueta",
     "Email": "Correo electrónico",

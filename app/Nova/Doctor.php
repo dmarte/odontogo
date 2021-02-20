@@ -157,6 +157,10 @@ class Doctor extends Resource
             Text::make(__('Email'), 'email_primary')->rules(['email'])->hideFromIndex(),
         ];
     }
+    public static function softDeletes()
+    {
+        return false;
+    }
 
     public static function label()
     {

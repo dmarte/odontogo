@@ -18,6 +18,8 @@ use Laravel\Nova\Panel;
 class Provider extends Resource
 {
     public static $model = \App\Models\Provider::class;
+    public static $displayInNavigation = false;
+    public static $globallySearchable = false;
 
     public static $title = 'name';
 
