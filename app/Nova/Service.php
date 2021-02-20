@@ -14,6 +14,12 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Service extends Resource
 {
+    public static $tableStyle = 'tight';
+    public static $globalSearchResults = 20;
+    public static $perPageOptions = [50, 100];
+    public static $relatableSearchResults = 20;
+    public static $preventFormAbandonment = true;
+    public static $showColumnBorders = true;
     public static $model = Product::class;
     public static $title = 'name';
     public static $priority = 3;
@@ -60,7 +66,7 @@ class Service extends Resource
     /**
      * Get the fields displayed by the resource.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      *
      * @return array
      */
@@ -111,7 +117,7 @@ class Service extends Resource
     /**
      * Get the cards available for the request.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      *
      * @return array
      */
@@ -123,7 +129,7 @@ class Service extends Resource
     /**
      * Get the filters available for the resource.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      *
      * @return array
      */
@@ -135,7 +141,7 @@ class Service extends Resource
     /**
      * Get the lenses available for the resource.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      *
      * @return array
      */
@@ -147,7 +153,7 @@ class Service extends Resource
     /**
      * Get the actions available for the resource.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      *
      * @return array
      */
