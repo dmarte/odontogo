@@ -13,7 +13,7 @@ class BudgetPrinter extends Printer
 {
     public function __construct(public Document $model)
     {
-        parent::__construct('Letter', $model->currency, request()->user()->locale);
+        parent::__construct('Letter', '', request()->user()->locale);
 
         $this->changeLanguageTerm('from', __('Team'));
         $this->changeLanguageTerm('to', __('Patient'));
@@ -33,6 +33,8 @@ class BudgetPrinter extends Printer
         $this->setDate($model->emitted_at->format('d/m/Y'));
         $this->setDue($model->expire_at->format('d/m/Y'));
         $this->flipflop();
+
+        $this->addParagraph(__('The currency used in this document is :currency', ['currency'=>$model->currency]));
 
         if ($this->model->description) {
             $this->addParagraph($model->description);
@@ -73,7 +75,7 @@ class BudgetPrinter extends Printer
         $this->addCustomHeader(__('Printed at'), now()->format('d/m/Y H:i A'));
         $this->addCustomHeader(__('Doctor'), $this->model->provider->name);
 
-        $this->setFooternote("{$model->title} / {$model->code}");
+        $this->setFooternote($model->code);
     }
 
     public function Body()

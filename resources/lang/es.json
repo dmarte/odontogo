@@ -104,6 +104,7 @@
     "New appointment": "Nueva cita",
     "The list of budgets :code where sent on :date by :user": "Los presupuestos :code fueron enviados el :date, por el usuario :user.",
     "The user :user was invited to join to the company.": "El usuario :user ha sido invitado a unirse a la clínica.",
+    "The currency used in this document is :currency": "La moneda utilizada en este documento es :currency",
     "Description": "Descripción",
     "Notifications": "Notificaciones",
     "Notes": "Notas",
