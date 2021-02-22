@@ -280,6 +280,7 @@ class Patient extends Resource
 
             BelongsTo::make(__('Source'), 'source', Source::class)
                 ->showCreateRelationButton()
+                ->viewable(false)
                 ->withoutTrashed()
                 ->help(__('how did you hear about us?'))
                 ->rules([
