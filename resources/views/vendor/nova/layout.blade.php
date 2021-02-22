@@ -57,7 +57,7 @@
                         <global-search dusk="global-search-component"></global-search>
                     @endif
 
-                    @include('nova-notifications::dropdown')
+{{--                    @include('nova-notifications::dropdown')--}}
 
                     <dropdown class="ml-auto h-9 flex items-center dropdown-right">
                         @include('nova::partials.user')

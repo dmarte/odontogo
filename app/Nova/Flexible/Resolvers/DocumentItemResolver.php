@@ -65,7 +65,7 @@ class DocumentItemResolver implements ResolverInterface
 
             $items = $groups->map(function (Layout $item) use ($budget, $products) {
                 /** @var \App\Models\Product $product */
-                $product = $products->firstWhere('id',$item->getAttribute('product_id'));
+                $product = $products->firstWhere('id', $item->getAttribute('product_id'));
 
                 if (!$product) {
                     return;
@@ -78,6 +78,7 @@ class DocumentItemResolver implements ResolverInterface
                     'price'                    => $product->price,
                     'quantity'                 => $item->getAttribute('quantity'),
                     'description'              => $item->getAttribute('description'),
+                    'discount_rate'            => $item->getAttribute('discount_rate'),
                     'expire_at'                => $budget->expire_at,
                     'emitted_at'               => $budget->emitted_at,
                     'team_id'                  => $budget->team_id,
@@ -86,7 +87,7 @@ class DocumentItemResolver implements ResolverInterface
                     'provider_contact_id'      => $budget->provider_contact_id,
                     'receiver_contact_id'      => $budget->receiver_contact_id,
                     'author_user_id'           => $budget->author_user_id,
-                    'comleted_by_user_id'      => $budget->completed_by_user_id,
+                    'completed_by_user_id'     => $budget->completed_by_user_id,
                 ];
             });
 
