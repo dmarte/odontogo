@@ -20,6 +20,10 @@ class ContactObserver
             $contact->tax_payer_name = $contact->name;
         }
 
+        if (is_null($contact->name)) {
+            $contact->name = $contact->tax_payer_name;
+        }
+
         if(is_null($contact->tax_payer_number)) {
             $contact->tax_payer_number = $contact->identification_number;
         }
@@ -36,6 +40,7 @@ class ContactObserver
                 ->first()
                 ?->id;
         }
+
 
         if (is_null($contact->updated_by_user_id)) {
             $contact->updated_by_user_id = $contact->author_user_id;
