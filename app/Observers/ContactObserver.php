@@ -36,6 +36,10 @@ class ContactObserver
                 ->first()
                 ?->id;
         }
+
+        if (is_null($contact->updated_by_user_id)) {
+            $contact->updated_by_user_id = $contact->author_user_id;
+        }
     }
 
     public function updating(Contact $contact) {

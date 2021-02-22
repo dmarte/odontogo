@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\Sequence;
+use App\Models\Contact;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddSequenceIdToContactTable extends Migration
+class AddResponsibleContactToContactsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,7 +15,12 @@ class AddSequenceIdToContactTable extends Migration
     public function up()
     {
         Schema::table('contacts', function (Blueprint $table) {
-            $table->foreignIdFor(Sequence::class)->nullable();
+            //
+            $table
+                ->foreignIdFor(Contact::class, 'responsible_contact_id')
+                ->nullable()
+                ->cascadeOnUpdate()
+                ->nullOnDelete();
         });
     }
 
@@ -27,7 +32,8 @@ class AddSequenceIdToContactTable extends Migration
     public function down()
     {
         Schema::table('contacts', function (Blueprint $table) {
-            $table->dropColumn('sequence_id');
+            //
+            $table->dropColumn('responsible_contact_id');
         });
     }
 }

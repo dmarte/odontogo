@@ -94,6 +94,7 @@ class Contact extends Model
         'tax_payer_number',
         'identification_number',
         'insurance_number',
+        'responsible_contact_id',
         'insurance_attribute_id',
         'source_attribute_id',
         'category_attribute_id',
@@ -173,5 +174,9 @@ class Contact extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function responsible() : BelongsTo {
+        return $this->belongsTo(Contact::class, 'responsible_contact_id');
     }
 }

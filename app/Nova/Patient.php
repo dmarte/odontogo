@@ -127,9 +127,12 @@ class Patient extends Resource
                 ->hideWhenCreating()
                 ->squared()
                 ->store(new UploadAvatar)
-                ->disableDownload(),
+                ->disableDownload()
+                ->hideFromIndex(),
 
-            Hidden::make('avatar_disk')->onlyOnForms()->default(fn() => config('filesystems.default')),
+            Hidden::make('avatar_disk')
+                ->onlyOnForms()
+                ->default(fn() => config('filesystems.default')),
 
             Text::make(__('Full name'), 'name')
                 ->rules([
@@ -236,7 +239,7 @@ class Patient extends Resource
                 ->rules([
                     'required',
                 ]),
-            Text::make(__('City'), 'city_name'),
+            Text::make(__('City'), 'city_name')->hideFromIndex(),
             Text::make(__('Address'), 'address_line_1')->hideFromIndex(),
 
             // ---------- [ Insurance information ]
@@ -252,7 +255,9 @@ class Patient extends Resource
             // ---------- [ Administrative Information ]
 
             Heading::make(__('Administrative information')),
-
+            BelongsTo::make(__('Doctor'), 'responsible', Doctor::class)
+                ->nullable()
+                ->showCreateRelationButton(),
             BelongsTo::make(__('Team'), 'team', Team::class)
                 ->default(fn() => $request->user()->member->team_id)
                 ->onlyOnDetail(),
@@ -306,7 +311,8 @@ class Patient extends Resource
                 ->hideWhenCreating()
                 ->hideFromIndex(),
             self::getFieldForContributorType($country, 'tax_payer_type')
-                ->hideWhenCreating(),
+                ->hideWhenCreating()
+                ->hideFromIndex(),
             Hidden::make('tax_payer_type')
                 ->default(config("ogo.{$country}.contributors.default_type"))
                 ->showOnCreating(),
@@ -320,6 +326,9 @@ class Patient extends Resource
             Heading::make(__('Credit information'))->hideWhenCreating(),
             Hidden::make('credit_value')->default(0)->showOnCreating(),
             Hidden::make('credit_days')->default(0)->showOnCreating(),
+            Hidden::make('author_user_id')->default($request->user()->id)->showOnCreating(),
+            Hidden::make('updated_by_user_id')->default($request->user()->id),
+
             Number::make(__('Credit amount'), 'credit_value')
                 ->default(0)
                 ->hideWhenCreating()
