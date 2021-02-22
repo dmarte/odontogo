@@ -12,6 +12,14 @@ class ContactObserver
         $contact->counter = $this->counter($contact);
         $contact->code = $this->code($contact, $contact->counter);
 
+        if (is_null($contact->credit_value)) {
+            $contact->credit_value = 0;
+        }
+
+        if (is_null($contact->credit_days)) {
+            $contact->credit_days = 0;
+        }
+
         if (is_null($contact->registered_at)) {
             $contact->registered_at = now()->format('Y-m-d');
         }
