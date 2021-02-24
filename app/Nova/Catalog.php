@@ -44,7 +44,10 @@ class Catalog extends Resource
 
     public static $globallySearchable = false;
 
-    public static $title = 'name';
+    public function title()
+    {
+        return "{$this->code} - {$this->name}";
+    }
 
     public static function group()
     {
@@ -99,6 +102,19 @@ class Catalog extends Resource
 
     public static function relatableQuery(NovaRequest $request, $query)
     {
+        if ($request->route('resource') === Receipt::uriKey()) {
+            $query->whereNull('team_id')
+                ->where('kind', Attribute::KIND_CATALOG_ACCOUNTING)
+                ->where('enabled', true)
+                ->where('system_default', true)
+                ->where('code', 'LIKE', \App\Models\Catalog::CATALOG_INCOME . '%')
+                ->whereNotIn('code', [\App\Models\Catalog::CATALOG_INCOME])
+                ->orderBy('code');
+
+            return $query;
+        }
+
+
         $query
             ->where('kind', self::KIND)
             ->where(function ($query) use ($request) {

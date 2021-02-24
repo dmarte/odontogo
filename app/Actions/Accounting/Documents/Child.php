@@ -85,6 +85,7 @@ class Child extends Model implements Summarizable
         'cancelled_at',
         'verified_at',
         'team_id',
+        'data',
         'category_attribute_id',
         'subcategory_attribute_id',
         'provider_contact_id',

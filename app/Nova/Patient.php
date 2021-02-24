@@ -175,7 +175,7 @@ class Patient extends Resource
                     Rule::unique('contacts', 'identification_number')
                         ->where('kind', Contact::KIND_PATIENT)
                         ->where('team_id', request()->user()->team->id)
-                        ->ignore('{resourceId}'),
+                        ->ignore($request->route('resourceId')),
                 ])
                 ->hideFromIndex(),
 
@@ -207,7 +207,6 @@ class Patient extends Resource
                 ->country($request->user()->country)
             ,
             PhoneNumber::make(__('Secondary phone'), 'phone_secondary')
-                ->hideWhenCreating()
                 ->hideFromIndex()
                 ->hideFromDetail()
                 ->disableValidation()
@@ -228,7 +227,6 @@ class Patient extends Resource
                     'nullable',
                     'email',
                 ])
-                ->hideWhenCreating()
                 ->hideFromIndex(),
             // ----------- [ Address ]
             Heading::make(__('Address')),
@@ -236,6 +234,7 @@ class Patient extends Resource
                 ->default(fn() => $request->user()->country)
                 ->displayUsingLabels()
                 ->hideFromIndex()
+                ->searchable()
                 ->rules([
                     'required',
                 ]),

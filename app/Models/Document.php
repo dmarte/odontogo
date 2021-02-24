@@ -13,6 +13,10 @@ class Document extends Head
     use HasFactory;
     use HasFlexible;
 
+    public function payer() {
+        return $this->belongsTo(Contact::class, 'paid_by_contact_id');
+    }
+
     public function products()
     {
         return $this->hasManyThrough(Product::class, Item::class);

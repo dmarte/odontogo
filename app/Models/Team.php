@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 /**
@@ -60,6 +61,10 @@ class Team extends Model
         'address_line_2',
         'primary_color'
     ];
+
+    public function doctors() : HasMany {
+        return $this->hasMany(Doctor::class);
+    }
 
     public function contacts() : HasMany {
         return $this->hasMany(Contact::class);
@@ -114,10 +119,16 @@ class Team extends Model
         return $this->hasMany(Sequence::class);
     }
 
-    public function budgetSequence() {
+    public function budgetSequence() : HasOne {
         return $this
             ->hasOne(Sequence::class)
             ->where('types->' . Document::KIND_INVOICE_BUDGET, true)
+            ->withDefault();
+    }
+
+    public function receiptSequence() : HasOne {
+        return $this->hasOne(Sequence::class)
+            ->where('types->' . Document::KIND_PAYMENT_RECEIPT, true)
             ->withDefault();
     }
 
