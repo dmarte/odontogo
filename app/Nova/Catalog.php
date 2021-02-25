@@ -93,6 +93,7 @@ class Catalog extends Resource
     {
         $query
             ->where('kind', self::KIND)
+//            ->whereIn('code', [1,2,3,4,5,6])
             ->where(function ($query) use ($request) {
                 $query->whereNull('team_id')
                     ->orWhere('team_id', $request->user()->member->team_id);

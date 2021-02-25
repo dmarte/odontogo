@@ -14,6 +14,7 @@ class PatientPayments extends Resource
     public static $with = ['doctor','receipt', 'author'];
     public static $model = Item::class;
     public static $title = 'id';
+    public static $displayInNavigation=false;
     public static $search = [
         'id',
     ];

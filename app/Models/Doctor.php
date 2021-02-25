@@ -43,4 +43,12 @@ class Doctor extends Contact
     public function transactions() : HasMany {
         return $this->hasMany(Item::class, 'provider_contact_id');
     }
+
+    public function incomes() : HasMany {
+        return $this->transactions()->where('data->kind', Document::KIND_PAYMENT_RECEIPT);
+    }
+
+    public function expenses() : HasMany {
+        return $this->transactions()->where('data->kind', Document::KIND_EXPENSE);
+    }
 }

@@ -269,6 +269,14 @@ class Head extends Model implements Summarizable
 
     public function buildSequence(): void
     {
+        $ignore = [
+            static::KIND_EXPENSE,
+        ];
+
+        if (in_array($this->kind, $ignore, true)) {
+            return ;
+        }
+
         $sequence = is_null($this->sequence_id) ? $this->receiver->sequence : $this->sequence;
 
         $this->sequence_prefix = $sequence?->prefix;
@@ -276,6 +284,7 @@ class Head extends Model implements Summarizable
         $this->sequence_number = $sequence?->next;
         $this->sequence_expire_at = $sequence?->expire_at?->format('Y-m-d');
         $this->sequence_value = $sequence?->next_formatted;
+
         $sequence?->increase();
     }
 

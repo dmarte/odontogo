@@ -6,7 +6,8 @@ use App\Models\Document;
 
 class DocumentObserver
 {
-    public function creating(Document $document) {
+    public function creating(Document $document)
+    {
 
         if (!$document->currency) {
             $document->exchange_rate = 1;
@@ -16,7 +17,8 @@ class DocumentObserver
         $document->summarize();
     }
 
-    public function updating(Document $document) {
+    public function updating(Document $document)
+    {
         $document->summarize();
     }
 }

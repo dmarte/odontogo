@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\Wallet;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class DocumentItem
@@ -28,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Child extends Model implements Summarizable
 {
     use HasDocumentSharedData;
+    use SoftDeletes;
 
     protected const ENTITY_PROVIDER = Contact::class;
     protected const ENTITY_RECEIVER = Contact::class;
@@ -107,7 +109,9 @@ class Child extends Model implements Summarizable
     {
         $this->currency = $this->currency ?? $this->document->currency;
         $this->team_id = $this->document->team_id;
-        $this->price = $this->product->price;
+        if (is_null($this->price)) {
+            $this->price = $this->product->price;
+        }
         $this->summarize();
     }
 
@@ -136,7 +140,6 @@ class Child extends Model implements Summarizable
         });
 
         static::deleted(function (Child $child) {
-            $this->document->summarize();
             $child->document->summarize();
             $child->document->buildTitle();
             $child->document->save();

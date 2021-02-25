@@ -8,7 +8,7 @@ class DocumentItemObserver
 {
 
     public function created(Item $item) {
-        $item->document->summarize()->save();
+            $item->document->summarize()->save();
     }
 
     public function updating(Item $item) {

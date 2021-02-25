@@ -31,11 +31,12 @@ class Receipt extends Resource
     public static $preventFormAbandonment = true;
     public static $priority = 0;
     public static $model = \App\Models\Receipt::class;
+    public static $title = 'code';
     public static $search = [
         'code',
+        'sequence_value',
+        'sequence_number'
     ];
-
-    public static $title = 'title';
     public static $globalSearchRelations = [
         'provider' => ['name', 'code'],
         'receiver' => ['name', 'code'],
@@ -112,9 +113,8 @@ class Receipt extends Resource
             Hidden::make('exchange_currency')->default($request->user()->team->currency),
             Hidden::make('exchange_rate')->default(1),
             Hidden::make('kind')->default(Document::KIND_PAYMENT_RECEIPT),
-            Hidden::make('paid')->default(1),
-            Hidden::make('completed')->default(1),
-            Hidden::make('completed_at')->default(now()->format('Y-m-d')),
+            Hidden::make('paid')->default(0),
+            Hidden::make('completed')->default(0),
             Hidden::make('expire_at')->default(now()->format('Y-m-d')),
             Hidden::make('cancelled')->default(0),
             Hidden::make('sequence_id')->default($request->user()->team->receiptSequence->id),
@@ -123,7 +123,6 @@ class Receipt extends Resource
             Hidden::make('author_user_id')->default($request->user()->id),
             Hidden::make('completed_by_user_id')->default($request->user()->id),
             Hidden::make('updated_by_user_id')->default($request->user()->id),
-            Hidden::make('data[kind]')->default(Document::KIND_PAYMENT_RECEIPT),
             // emitted_at
             Date::make(__('Emitted at'), 'emitted_at')
                 ->rules(['required', 'date'])

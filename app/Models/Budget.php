@@ -13,6 +13,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Budget extends Document
 {
+    public function items(): HasMany
+    {
+        return $this->hasMany(BudgetTransaction::class);
+    }
+
     public function getPdfAttribute() {
         return new BudgetPrinter($this);
     }

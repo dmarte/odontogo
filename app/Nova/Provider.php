@@ -18,7 +18,7 @@ use Laravel\Nova\Panel;
 class Provider extends Resource
 {
     public static $model = \App\Models\Provider::class;
-    public static $displayInNavigation = false;
+    public static $displayInNavigation = true;
     public static $globallySearchable = false;
 
     public static $title = 'name';
@@ -68,7 +68,9 @@ class Provider extends Resource
     private function getContactFields(): array
     {
         return [
-            Text::make(__('Provider name'), 'name')->nullable(),
+            Text::make(__('Provider name'), 'name')
+                ->nullable()
+                ->help(__('The person we can ask for.')),
             Text::make(__('Job title'), 'title')->hideFromIndex(),
             Select::make(__('Gender'), 'gender')
                 ->hideFromIndex()
@@ -132,6 +134,9 @@ class Provider extends Resource
                 ->hideFromIndex()
                 ->withoutTrashed()
                 ->showCreateRelationButton()
+                ->default(function(){
+                    return \App\Models\Catalog::expenses()->first()->id;
+                })
                 ->display(function ($model) {
                     return "{$model->code} - {$model->name}";
                 }),

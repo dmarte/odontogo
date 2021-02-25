@@ -117,7 +117,7 @@ class Patient extends Resource
         $country = strtolower($request->user()->country);
 
         return [
-            Tabs::make('tabs', [
+            Tabs::make($this->resource?->name ?? __('Patient'), [
                 __('Patient') => [
                     Text::make(__('ID'), 'counter')->onlyOnDetail(),
                     Text::make(__('Code'), 'code')->hideWhenCreating()->hideWhenUpdating(),
@@ -345,7 +345,7 @@ class Patient extends Resource
                 __('Payments') => [
                     HasMany::make(__('Payments'), 'payments', PatientPayments::class),
                 ]
-            ]),
+            ])->withToolbar(),
 
 
         ];

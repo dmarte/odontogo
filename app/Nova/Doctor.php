@@ -4,6 +4,7 @@ namespace App\Nova;
 
 use App\Models\Contact;
 use App\Nova\Lenses\DoctorReportByPeriod;
+use App\Nova\Lenses\DoctorsReport;
 use Dniccum\PhoneNumber\PhoneNumber;
 use Eminiarts\Tabs\Tab;
 use Eminiarts\Tabs\Tabs;
@@ -59,7 +60,7 @@ class Doctor extends Resource
     public function fields(Request $request)
     {
         return [
-            Tabs::make('tabs',[
+            Tabs::make($this->resource?->name ?? __('Doctor'),[
                 __('Doctor') => [
                     Text::make(__('Id'), 'counter')->onlyOnDetail(),
                     Text::make(__('Code'), 'code')->hideWhenCreating()->hideWhenUpdating(),
@@ -71,10 +72,13 @@ class Doctor extends Resource
                 __('Agreements') => [
                     HasMany::make(__('Agreements'), 'agreements', Agreement::class),
                 ],
-                __('Doctor report') => [
-                    HasMany::make(__('Doctor report'), 'transactions', DoctorTransactions::class)
+                __('Incomes') => [
+                    HasMany::make(__('Incomes'), 'incomes', ReceiptTransaction::class),
+                ],
+                __('Expenses') => [
+                    HasMany::make(__('Expenses'), 'expenses', ExpenseTransaction::class)
                 ]
-            ])->defaultSearch(true),
+            ])->defaultSearch(true)->withToolbar(),
 //            new Panel(__('Credit information'), $this->getCreditFields($request->user())),
         ];
     }

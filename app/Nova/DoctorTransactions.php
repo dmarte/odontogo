@@ -14,6 +14,7 @@ class DoctorTransactions extends Resource
     public static $with = ['patient', 'doctor.agreements'];
     public static $model = Item::class;
     public static $title = 'id';
+    public static $displayInNavigation=false;
     public static $search = [];
 
     public function fields(Request $request)

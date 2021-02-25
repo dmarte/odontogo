@@ -42,6 +42,14 @@ trait HasDocumentSummary
 
     public function summarize(): static
     {
+        $ignore = [
+            Document::KIND_EXPENSE,
+        ];
+
+        if (in_array($this->kind, $ignore, true)) {
+            return $this;
+        }
+
         $values = [];
 
         foreach (array_keys(static::fields()) as $field) {

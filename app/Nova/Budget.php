@@ -19,19 +19,29 @@ use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use NovaButton\Button;
 use Techouse\IntlDateTime\IntlDateTime;
+use Titasgailius\SearchRelations\SearchesRelations;
 use Whitecube\NovaFlexibleContent\Flexible;
 
 class Budget extends Resource
 {
+    use SearchesRelations;
+
     public static $model = \App\Models\Budget::class;
     public static $preventFormAbandonment = true;
     public static $with = ['receiver', 'provider'];
-    public static $title = 'title';
-
+    public static $title = 'code';
     public static $search = [
         'code',
-        'title',
         'sequence_value',
+        'sequence_number'
+    ];
+    public static $globalSearchRelations = [
+        'provider' => ['name', 'code'],
+        'receiver' => ['name', 'code'],
+    ];
+    public static $searchRelations = [
+        'provider' => ['name', 'code'],
+        'receiver' => ['name', 'code'],
     ];
 
     public static $priority = 1;
