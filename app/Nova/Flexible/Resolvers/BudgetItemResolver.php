@@ -7,7 +7,7 @@ use App\Models\Item;
 use Whitecube\NovaFlexibleContent\Layouts\Layout;
 use Whitecube\NovaFlexibleContent\Value\ResolverInterface;
 
-class DocumentItemResolver implements ResolverInterface
+class BudgetItemResolver implements ResolverInterface
 {
     /**
      * get the field's value
@@ -76,9 +76,9 @@ class DocumentItemResolver implements ResolverInterface
                     'document_id'              => $budget->id,
                     'product_id'               => $product->id,
                     'price'                    => $product->price,
-                    'quantity'                 => $item->getAttribute('quantity'),
+                    'quantity'                 => $item->getAttribute('quantity') ?? 0,
                     'description'              => $item->getAttribute('description'),
-                    'discount_rate'            => $item->getAttribute('discount_rate'),
+                    'discount_rate'            => $item->getAttribute('discount_rate') ?? 0,
                     'expire_at'                => $budget->expire_at,
                     'emitted_at'               => $budget->emitted_at,
                     'team_id'                  => $budget->team_id,

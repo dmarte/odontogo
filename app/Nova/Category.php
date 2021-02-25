@@ -17,6 +17,7 @@ class Category extends Resource
 {
     const KIND = Attribute::KIND_GENERAL_CATEGORY;
     public static $globallySearchable = false;
+    public static $displayInNavigation =false;
     public static $model = Attribute::class;
     public static $title = 'name';
     public static $search = [

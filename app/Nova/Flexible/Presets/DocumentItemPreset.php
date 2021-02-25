@@ -4,7 +4,7 @@ namespace App\Nova\Flexible\Presets;
 
 use App\Models\Document;
 use App\Nova\Flexible\Layouts\FlexibleItemLayout;
-use App\Nova\Flexible\Resolvers\DocumentItemResolver;
+use App\Nova\Flexible\Resolvers\BudgetItemResolver;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Whitecube\NovaFlexibleContent\Flexible;
 use Whitecube\NovaFlexibleContent\Layouts\Preset;
@@ -21,7 +21,7 @@ class DocumentItemPreset extends Preset
             $field->button(__('Add'));
             $field->collapsed(false);
             $field->fullWidth();
-            $field->resolver(DocumentItemResolver::class);
+            $field->resolver(BudgetItemResolver::class);
     }
 
 }

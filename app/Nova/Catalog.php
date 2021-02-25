@@ -17,6 +17,7 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 class Catalog extends Resource
 {
     const KIND = Attribute::KIND_CATALOG_ACCOUNTING;
+    public static $displayInNavigation = false;
     /**
      * The model the resource corresponds to.
      *

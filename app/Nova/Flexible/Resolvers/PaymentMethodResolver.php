@@ -93,6 +93,7 @@ class PaymentMethodResolver implements ResolverInterface
                         'description'              => $item->getAttribute('description'),
                         'discount_rate'            => $item->getAttribute('discount_rate') ?? 0,
                         'amount_paid'              => $item->getAttribute('amount_paid') ?? 0,
+                        'wallet_attribute_id'      => $item->getAttribute('wallet_attribute_id'),
                         'expire_at'                => $receipt->expire_at,
                         'emitted_at'               => $receipt->emitted_at,
                         'team_id'                  => $receipt->team_id,

@@ -17,6 +17,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('activate/{team}/{token}', UserInvitationController::class)->name('invitation.join');
 
-Route::get('pdf/budget/{budget}', [DocumentToPdfController::class, 'budget'])
-    ->name('print.budget')
-    ->middleware('auth');
+Route::get('pdf/budget/{budget}', [DocumentToPdfController::class, 'budget'])->name('print.budget')->middleware('auth');
+Route::get('pdf/receipt/{receipt}', [DocumentToPdfController::class, 'receipt'])->name('print.receipt')->middleware('auth');

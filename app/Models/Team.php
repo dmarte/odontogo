@@ -62,6 +62,10 @@ class Team extends Model
         'primary_color'
     ];
 
+    public function wallets() : HasMany {
+        return $this->hasMany(Wallet::class);
+    }
+
     public function doctors() : HasMany {
         return $this->hasMany(Doctor::class);
     }

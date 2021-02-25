@@ -30,7 +30,7 @@ return [
     'email'                 => 'El formato del :attribute es inválido.',
     'exists'                => 'El campo :attribute seleccionado es inválido.',
     'file'                  => 'El campo :attribute debe ser un archivo.',
-    'filled'                => 'El campo :attribute es requerido.',
+    'filled'                => 'Este campo es requerido.',
     'gt'                    => [
         'numeric' => 'El campo :attribute debe ser mayor que :value.',
         'file'    => 'El campo :attribute debe ser mayor que :value kilobytes.',
@@ -82,7 +82,7 @@ return [
     'numeric'               => 'El campo :attribute debe ser un número.',
     'present'               => 'El campo :attribute debe estar presente.',
     'regex'                 => 'El formato del campo :attribute es inválido.',
-    'required'              => 'El campo :attribute es requerido.',
+    'required'              => 'Este campo es requerido.',
     'required_if'           => 'El campo :attribute es requerido cuando el campo :other es :value.',
     'required_unless'       => 'El campo :attribute es requerido a menos que :other esté presente en :values.',
     'required_with'         => 'El campo :attribute es requerido cuando :values está presente.',

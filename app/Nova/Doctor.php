@@ -3,14 +3,18 @@
 namespace App\Nova;
 
 use App\Models\Contact;
+use App\Nova\Lenses\DoctorReportByPeriod;
 use Dniccum\PhoneNumber\PhoneNumber;
+use Eminiarts\Tabs\Tab;
+use Eminiarts\Tabs\Tabs;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Country;
+use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\Hidden;
-use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Number;
+use Laravel\Nova\Fields\MorphMany;
+use Laravel\Nova\Fields\MorphToMany;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Stack;
 use Laravel\Nova\Fields\Text;
@@ -31,7 +35,7 @@ class Doctor extends Resource
 
     public static $tableStyle = 'tight';
 
-    public static $showColumnBorders =true;
+    public static $showColumnBorders = true;
 
     public static $priority = 2;
 
@@ -55,12 +59,22 @@ class Doctor extends Resource
     public function fields(Request $request)
     {
         return [
-            Text::make(__('Id'), 'counter')->onlyOnDetail(),
-            Text::make(__('Code'), 'code')->hideWhenCreating()->hideWhenUpdating(),
-            Hidden::make('kind')->onlyOnForms()->default(self::KIND),
-            Hidden::make('team_id')->showOnCreating()->default($request->user()->team->id),
-            new Panel(__('Doctor information'), $this->getFiscalFields($request->user())),
-            new Panel(__('Address'), $this->getAddressFields($request->user())),
+            Tabs::make('tabs',[
+                __('Doctor') => [
+                    Text::make(__('Id'), 'counter')->onlyOnDetail(),
+                    Text::make(__('Code'), 'code')->hideWhenCreating()->hideWhenUpdating(),
+                    Hidden::make('kind')->onlyOnForms()->default(self::KIND),
+                    Hidden::make('team_id')->showOnCreating()->default($request->user()->team->id),
+                    new Panel(__('Doctor information'), $this->getFiscalFields($request->user())),
+                    new Panel(__('Address'), $this->getAddressFields($request->user())),
+                ],
+                __('Agreements') => [
+                    HasMany::make(__('Agreements'), 'agreements', Agreement::class),
+                ],
+                __('Doctor report') => [
+                    HasMany::make(__('Doctor report'), 'transactions', DoctorTransactions::class)
+                ]
+            ])->defaultSearch(true),
 //            new Panel(__('Credit information'), $this->getCreditFields($request->user())),
         ];
     }
@@ -118,7 +132,7 @@ class Doctor extends Resource
         return [
             Stack::make(__('Doctor'), [
                 Text::make(__("Name"), 'tax_payer_name')->hideWhenUpdating(),
-                Text::make(__("{$country}_identification_number"), 'tax_payer_number')->hideWhenCreating()
+                Text::make(__("{$country}_identification_number"), 'tax_payer_number')->hideWhenCreating(),
             ]),
             Text::make(__("Name"), 'tax_payer_name')
                 ->help(__('The name as shown on the identification card.'))
@@ -157,6 +171,7 @@ class Doctor extends Resource
             Text::make(__('Email'), 'email_primary')->rules(['email'])->hideFromIndex(),
         ];
     }
+
     public static function softDeletes()
     {
         return false;
@@ -174,17 +189,19 @@ class Doctor extends Resource
 
     public static function createButtonLabel()
     {
-        return __('New resource', ['resource'=>__('Doctor')]);
+        return __('New resource', ['resource' => __('Doctor')]);
     }
 
     public static function updateButtonLabel()
     {
         return __('Save');
     }
+
     /**
      * Get the cards available for the request.
      *
      * @param  \Illuminate\Http\Request  $request
+     *
      * @return array
      */
     public function cards(Request $request)
@@ -196,6 +213,7 @@ class Doctor extends Resource
      * Get the filters available for the resource.
      *
      * @param  \Illuminate\Http\Request  $request
+     *
      * @return array
      */
     public function filters(Request $request)
@@ -207,17 +225,20 @@ class Doctor extends Resource
      * Get the lenses available for the resource.
      *
      * @param  \Illuminate\Http\Request  $request
+     *
      * @return array
      */
     public function lenses(Request $request)
     {
-        return [];
+        return [
+        ];
     }
 
     /**
      * Get the actions available for the resource.
      *
      * @param  \Illuminate\Http\Request  $request
+     *
      * @return array
      */
     public function actions(Request $request)

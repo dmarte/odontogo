@@ -3,9 +3,12 @@
 namespace App\Nova;
 
 use App\Models\Document;
+use App\Nova\Actions\DocumentPrintAction;
 use App\Nova\Flexible\Presets\PaymentMethodPreset;
+use App\Nova\Metrics\ReceiptsIncomeByPeriod;
 use App\Nova\Metrics\DocumentSummaryCard;
 use DigitalCreative\ConditionalContainer\HasConditionalContainer;
+use Epartment\NovaDependencyContainer\HasDependencies;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Date;
@@ -13,6 +16,7 @@ use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\Heading;
 use Laravel\Nova\Fields\Hidden;
 use Laravel\Nova\Fields\ID;
+use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Titasgailius\SearchRelations\SearchesRelations;
@@ -60,7 +64,7 @@ class Receipt extends Resource
         return __('Payment Receipt');
     }
 
-    public function fieldsForUpdate(Request $request) {
+    public function fieldsForUpdate() {
         return [
             // emitted_at
             Date::make(__('Emitted at'), 'emitted_at')
@@ -111,6 +115,7 @@ class Receipt extends Resource
             Hidden::make('paid')->default(1),
             Hidden::make('completed')->default(1),
             Hidden::make('completed_at')->default(now()->format('Y-m-d')),
+            Hidden::make('expire_at')->default(now()->format('Y-m-d')),
             Hidden::make('cancelled')->default(0),
             Hidden::make('sequence_id')->default($request->user()->team->receiptSequence->id),
             Hidden::make('category_attribute_id')->default(\App\Models\Catalog::income()->first()->id),
@@ -179,6 +184,15 @@ class Receipt extends Resource
         ];
     }
 
+    public function fieldsForIndex() {
+        return [
+            Text::make(__('Number'), 'sequence_number'),
+            Date::make(__('Paid at'), 'paid_at')->format('dddd D, MMMM YYYY'),
+            BelongsTo::make(__('Patient'), 'receiver', Patient::class)->viewable(false),
+            Number::make(__('Amount paid'), 'amount_paid')->displayUsing(fn($value)=>number_format($value)),
+        ];
+    }
+
     public function fields(Request $request)
     {
         return [
@@ -193,17 +207,20 @@ class Receipt extends Resource
         return false;
     }
 
-//    public function authorizedToDelete(Request $request)
-//    {
-//        return false;
-//    }
-
     public function cards(Request $request)
     {
         return [
-            (new DocumentSummaryCard())
-                ->field('id')
-                ->label('Total'),
+            (new ReceiptsIncomeByPeriod())->defaultRange('MTD'),
+            (new DocumentSummaryCard())->field('total')->label('Total')->onlyOnDetail(),
+            (new DocumentSummaryCard())->field('change')->label('Change amount')->onlyOnDetail(),
+            (new DocumentSummaryCard())->field('balance')->label('Balance')->onlyOnDetail(),
+        ];
+    }
+
+    public function actions(Request $request)
+    {
+        return [
+          DocumentPrintAction::make()->showOnTableRow()->showOnDetail()->withoutConfirmation(),
         ];
     }
 }

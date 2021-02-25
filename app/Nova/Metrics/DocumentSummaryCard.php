@@ -9,19 +9,13 @@ use Laravel\Nova\Metrics\Value;
 class DocumentSummaryCard extends Value
 {
     public $onlyOnDetail = true;
-    public $width = '1/5';
+    public $width = '1/3';
     protected string $_field = 'amount';
     protected string $_label = 'Change amount';
-    protected Model|null $_model = null;
 
     public function name()
     {
         return __($this->_label);
-    }
-
-    public function model(Model $resource) {
-        $this->_model = $resource;
-        return $this;
     }
 
     public function label(string $label) {
@@ -43,10 +37,14 @@ class DocumentSummaryCard extends Value
      */
     public function calculate(NovaRequest $request)
     {
-        dd($this->_model?->toArray(), $request->model()->toArray(), $request->route('resourceId'));
+        /** @var \App\Models\Document $model */
+        $model = $request->findModelQuery($request->route('resourceId'))->first();
+
         return $this
-            ->result((float) $this->_model?->getAttribute($this->_field))
-            ->currency($this->_model?->currency)
+            ->result((float) $model?->getAttribute($this->_field))
+            ->dollars(__("Currency Symbol {$model?->currency}"))
+            ->format(' 0,0[.]00')
+
             ->allowZeroResult();
     }
 
@@ -77,6 +75,6 @@ class DocumentSummaryCard extends Value
      */
     public function uriKey()
     {
-        return 'document-change-amount';
+        return $this->_field;
     }
 }

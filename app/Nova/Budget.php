@@ -3,7 +3,7 @@
 namespace App\Nova;
 
 use App\Models\Document;
-use App\Nova\Actions\PrintBudgetAction;
+use App\Nova\Actions\DocumentPrintAction;
 use App\Nova\Actions\SendBudgetByEmailAction;
 use App\Nova\Flexible\Presets\DocumentItemPreset;
 use Eminiarts\Tabs\Tabs;
@@ -43,7 +43,10 @@ class Budget extends Resource
 
     public function title()
     {
-        return "{$this->title} - {$this->provider->name}";
+        return join(' - ', [
+            $this->title,
+            $this->provider?->name
+        ]);
     }
 
     public function subtitle()
@@ -224,7 +227,7 @@ class Budget extends Resource
     public function actions(Request $request)
     {
         return [
-            (new PrintBudgetAction())
+            (new DocumentPrintAction())
                 ->showOnDetail()
                 ->withoutConfirmation()
                 ->showOnTableRow(),

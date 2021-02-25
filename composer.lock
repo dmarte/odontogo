@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9f99629f89ccb6ff94ca95dc3157f027",
+    "content-hash": "9b46cab7c5320c589e2bbf6f71252559",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1244,6 +1244,51 @@
                 "source": "https://github.com/eminiarts/nova-tabs/tree/1.4.1"
             },
             "time": "2021-02-03T19:03:19+00:00"
+        },
+        {
+            "name": "epartment/nova-dependency-container",
+            "version": "1.2.12",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/epartment/nova-dependency-container.git",
+                "reference": "d0978d823a47be09506681e29fe723dab8d2f799"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/epartment/nova-dependency-container/zipball/d0978d823a47be09506681e29fe723dab8d2f799",
+                "reference": "d0978d823a47be09506681e29fe723dab8d2f799",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Epartment\\NovaDependencyContainer\\FieldServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Epartment\\NovaDependencyContainer\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A Laravel Nova field container allowing to depend on other fields values",
+            "keywords": [
+                "laravel",
+                "nova"
+            ],
+            "support": {
+                "issues": "https://github.com/epartment/nova-dependency-container/issues",
+                "source": "https://github.com/epartment/nova-dependency-container/tree/1.2.12"
+            },
+            "time": "2021-02-19T16:03:47+00:00"
         },
         {
             "name": "fideloper/proxy",

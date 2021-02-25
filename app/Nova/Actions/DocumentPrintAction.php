@@ -10,7 +10,7 @@ use Laravel\Nova\Actions\Action;
 use Laravel\Nova\Fields\ActionFields;
 use Laravel\Nova\Fields\BelongsTo;
 
-class PrintBudgetAction extends Action
+class DocumentPrintAction extends Action
 {
     use InteractsWithQueue, Queueable;
 
@@ -31,10 +31,12 @@ class PrintBudgetAction extends Action
     {
 
         if ($models->count() < 1) {
-            return Action::danger(__('You should select a budget to be printed.'));
+            return Action::danger(__('You should select a document to be printed.'));
         }
 
-        return Action::openInNewTab(url("/pdf/budget/{$models->first()->getKey()}"));
+        /** @var \App\Models\Document $model */
+        $model = $models->first();
+        return Action::openInNewTab(url("/pdf/{$model->getMorphClass()}/{$model->getKey()}"));
     }
 
     /**

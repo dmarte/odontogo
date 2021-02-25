@@ -6,7 +6,11 @@ namespace App\Actions\Accounting\Documents;
 use App\Actions\Accounting\Interfaces\Summarizable;
 use App\Actions\Accounting\Traits\HasDocumentSharedData;
 use App\Models\Contact;
+use App\Models\Document;
+use App\Models\Product;
+use App\Models\Wallet;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class DocumentItem
@@ -96,6 +100,7 @@ class Child extends Model implements Summarizable
         'cancelled_by_user_id',
         'updated_by_user_id',
         'deleted_by_user_id',
+        'wallet_attribute_id',
     ];
 
     public function sanitize(): void
@@ -116,6 +121,8 @@ class Child extends Model implements Summarizable
             $child->document->summarize();
             $child->document->buildTitle();
             $child->document->save();
+            // Wallets
+            $child->wallet?->summarize('wallet_attribute_id');
         });
 
         static::updating(function (Child $child) {
@@ -133,9 +140,22 @@ class Child extends Model implements Summarizable
             $child->document->summarize();
             $child->document->buildTitle();
             $child->document->save();
+            $child->wallet?->summarize('wallet_attribute_id');
         });
 
         parent::booted();
+    }
+
+    public function wallet() : BelongsTo {
+        return $this->belongsTo(Wallet::class, 'wallet_attribute_id');
+    }
+
+    public function document() : BelongsTo {
+        return $this->belongsTo(Document::class);
+    }
+
+    public function product() : BelongsTo {
+        return $this->belongsTo(Product::class);
     }
 
     public function summary(string $field): float|int

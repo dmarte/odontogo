@@ -3,6 +3,7 @@
 namespace App\Nova\Flexible\Layouts;
 
 use App\Models\Document;
+use Epartment\NovaDependencyContainer\NovaDependencyContainer;
 use Laravel\Nova\Fields\Currency;
 use Laravel\Nova\Fields\Heading;
 use Laravel\Nova\Fields\Number;
@@ -45,6 +46,8 @@ class PaymentMethodLayout extends Layout
                 })->displayUsingLabels(),
             Text::make(__('Confirmation number or check'), 'data.confirmation_number')
                 ->help(__('Only if applicable')),
+            Number::make(__('Last 4 digits'), 'data.credit_card_last_digits')
+                ->help(__('When is a credit card.')),
 //            Heading::make(__('Procedure information')),
             Select::make(__('Procedure'), 'product_id')
                 ->nullable()
@@ -54,6 +57,7 @@ class PaymentMethodLayout extends Layout
                     ) => [$product->getKey() => "{$product->name} - ".number_format($product->price)]);
                 })
                 ->displayUsingLabels(),
+            Number::make(__('Quantity'), 'quantity')->default(1),
             Select::make(__('Doctor'), 'provider_contact_id')
                 ->rules([
                     'required',
@@ -66,7 +70,18 @@ class PaymentMethodLayout extends Layout
                     });
                 })
                 ->displayUsingLabels(),
-            Number::make(__('Quantity'), 'quantity')->default(1),
+            Select::make(__('Wallet'), 'wallet_attribute_id')
+                ->rules([
+                    'required',
+                    'numeric',
+                    'exists:attributes,id',
+                ])
+                ->options(function () {
+                    return request()->user()->team->wallets->mapWithKeys(function ($wallet) {
+                        return [$wallet->getKey() => "{$wallet->code} - {$wallet->name}"];
+                    });
+                })
+                ->displayUsingLabels(),
         ];
     }
 }

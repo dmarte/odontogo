@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -31,6 +32,7 @@ class Attribute extends Model
     public const KIND_DENTAL_INSURANCE = 'dental_insurance';
     public const KIND_DENTAL_PROCEDURE = 'dental_procedure';
     public const KIND_DENTAL_DIAGNOSIS = 'dental_diagnosis';
+    public const KIND_WALLET = 'wallet';
     public const KIND_GENERAL_TAX_PAYER_TYPE='tax_payer_type';
     public const KIND_AD_SOURCE = 'ads_source';
 
@@ -74,6 +76,8 @@ class Attribute extends Model
         'parent_id',
         'code',
         'system_default',
+        'amount_credit',
+        'amount_debit'
     ];
 
     protected static function booted()
@@ -86,6 +90,19 @@ class Attribute extends Model
                         ->count() + 1;
             }
         });
+    }
+
+    public function items(string $column = 'wallet_attribute_id') : HasMany {
+        return $this->hasMany(Item::class, $column);
+    }
+
+    public function summarize($relationColumn = 'wallet_attribute_id') {
+        $this->update([
+            'amount_credit'=> $this
+                ->items($relationColumn)
+                ->where('data->kind', Document::KIND_PAYMENT_RECEIPT)
+                ->sum('amount_paid')
+        ]);
     }
 
     public function parent()
