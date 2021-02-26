@@ -19,3 +19,4 @@ Route::get('activate/{team}/{token}', UserInvitationController::class)->name('in
 
 Route::get('pdf/budget/{budget}', [DocumentToPdfController::class, 'budget'])->name('print.budget')->middleware('auth');
 Route::get('pdf/receipt/{receipt}', [DocumentToPdfController::class, 'receipt'])->name('print.receipt')->middleware('auth');
+Route::get('pdf/doctor/{doctor}', [DocumentToPdfController::class, 'doctor'])->name('print.doctor_report')->middleware('auth');

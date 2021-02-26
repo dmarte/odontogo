@@ -3,6 +3,7 @@
 namespace App\Nova;
 
 use App\Models\Contact;
+use App\Nova\Actions\DoctorReportPrintAction;
 use App\Nova\Lenses\DoctorReportByPeriod;
 use App\Nova\Lenses\DoctorsReport;
 use Dniccum\PhoneNumber\PhoneNumber;
@@ -252,6 +253,11 @@ class Doctor extends Resource
      */
     public function actions(Request $request)
     {
-        return [];
+        return [
+            (new DoctorReportPrintAction())
+                ->onlyOnDetail()
+                ->confirmButtonText(__('Print Report'))
+                ->availableForEntireResource(true)
+        ];
     }
 }

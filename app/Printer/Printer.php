@@ -616,7 +616,7 @@ abstract class Printer extends FPDF
                 $this->SetFillColor($bgcolor, $bgcolor, $bgcolor);
                 $this->Cell(1 + $this->firstColumnWidth, $cellHeight, '', 0, 0, 'L', 0);
                 for ($i = 0; $i < $this->columns - 3; $i++) {
-                    $this->Cell($width_other, $cellHeight, '', 0, 0, 'R', 0);
+                    $this->Cell($width_other - 3, $cellHeight, '', 0, 0, 'R', 0);
                     $this->Cell($this->columnSpacing, $cellHeight, '', 0, 0, 'R', 0);
                 }
                 $this->Cell($this->columnSpacing, $cellHeight, '', 0, 0, 'R', 0);
@@ -627,7 +627,7 @@ abstract class Printer extends FPDF
                 $this->SetFont($this->font, 'b', 10);
                 $this->Cell(1, $cellHeight, '', 0, 0, 'L', 1);
                 $this->Cell(
-                    $width_other - 1,
+                    $width_other + 10,
                     $cellHeight,
                     iconv(self::ICONV_CHARSET_INPUT, self::ICONV_CHARSET_OUTPUT_B, $total['name']),
                     0,
