@@ -5,16 +5,16 @@ namespace App\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Date;
-use Laravel\Nova\Fields\Hidden;
-use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Number;
-use Laravel\Nova\Http\Requests\NovaRequest;
+use Titasgailius\SearchRelations\SearchesRelations;
 
 class ReceiptTransaction extends Resource
 {
+    use SearchesRelations;
     public static $model = \App\Models\ReceiptTransaction::class;
-
-    public static $title = 'id';
+    public static $tableStyle = 'tight';
+    public static $displayInNavigation = false;
+    public static $title = 'code';
     public static $search = [];
 
     public function fields(Request $request)

@@ -10,6 +10,7 @@ class Document extends Resource
 {
     public static $searchable = false;
     public static $globallySearchable = false;
+    public static $displayInNavigation=false;
     public static $model = \App\Models\Document::class;
     public static $title = 'code';
     public static $search = [];
