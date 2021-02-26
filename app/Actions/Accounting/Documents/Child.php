@@ -176,13 +176,7 @@ class Child extends Model implements Summarizable
 
     public function summarizedBalance(): float|int
     {
-        $total = $this->summarizedTotal() - $this->summarizedAmountPaid();
-
-        if($total < 0) {
-            return 0;
-        }
-
-        return $total;
+        return $this->balance;
     }
 
     public function summarizedTotal(): float|int

@@ -42,9 +42,8 @@ class DocumentSummaryCard extends Value
 
         return $this
             ->result((float) $model?->getAttribute($this->_field))
-            ->dollars(__("Currency Symbol {$model?->currency}"))
-            ->format(' 0,0[.]00')
-
+            ->dollars()
+            ->format('0,0[.]00')
             ->allowZeroResult();
     }
 

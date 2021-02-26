@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9b46cab7c5320c589e2bbf6f71252559",
+    "content-hash": "7b086ace0f18cd52df0f8d606db977f9",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -331,6 +331,52 @@
                 "source": "https://github.com/cakephp/chronos"
             },
             "time": "2021-02-06T03:37:44+00:00"
+        },
+        {
+            "name": "cloudcake/nova-fixed-bars",
+            "version": "v1.1.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cloudcake/nova-fixed-bars.git",
+                "reference": "8e8da9fbf5df21d0fd87984e4f2bbc2018986128"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cloudcake/nova-fixed-bars/zipball/8e8da9fbf5df21d0fd87984e4f2bbc2018986128",
+                "reference": "8e8da9fbf5df21d0fd87984e4f2bbc2018986128",
+                "shasum": ""
+            },
+            "require": {
+                "gregoriohc/laravel-nova-theme-responsive": "~0.6",
+                "php": ">=7.1.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NovaFixedBars\\NovaFixedBarsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NovaFixedBars\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A Laravel Nova package to add a responsive and/or fixed sidebar and navigation bar to the Nova admin UI.",
+            "keywords": [
+                "laravel",
+                "nova"
+            ],
+            "support": {
+                "issues": "https://github.com/cloudcake/nova-fixed-bars/issues",
+                "source": "https://github.com/cloudcake/nova-fixed-bars/tree/v1.1.4"
+            },
+            "time": "2020-01-10T22:36:36+00:00"
         },
         {
             "name": "dasprid/enum",

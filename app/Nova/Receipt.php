@@ -5,20 +5,17 @@ namespace App\Nova;
 use App\Models\Document;
 use App\Nova\Actions\DocumentPrintAction;
 use App\Nova\Flexible\Presets\PaymentMethodPreset;
-use App\Nova\Metrics\ReceiptsIncomeByPeriod;
 use App\Nova\Metrics\DocumentSummaryCard;
-use DigitalCreative\ConditionalContainer\HasConditionalContainer;
-use Epartment\NovaDependencyContainer\HasDependencies;
+use App\Nova\Metrics\ReceiptsIncomeByPeriod;
+use Eminiarts\Tabs\Tabs;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Date;
-use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\Heading;
 use Laravel\Nova\Fields\Hidden;
-use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Number;
+use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Http\Requests\NovaRequest;
 use Titasgailius\SearchRelations\SearchesRelations;
 use Whitecube\NovaFlexibleContent\Flexible;
 
@@ -35,7 +32,7 @@ class Receipt extends Resource
     public static $search = [
         'code',
         'sequence_value',
-        'sequence_number'
+        'sequence_number',
     ];
     public static $globalSearchRelations = [
         'provider' => ['name', 'code'],
@@ -51,7 +48,8 @@ class Receipt extends Resource
         return $this->code;
     }
 
-    public static function group() {
+    public static function group()
+    {
         return __('Branch');
     }
 
@@ -65,7 +63,8 @@ class Receipt extends Resource
         return __('Payment Receipt');
     }
 
-    public function fieldsForUpdate() {
+    public function fieldsForUpdate()
+    {
         return [
             // emitted_at
             Date::make(__('Emitted at'), 'emitted_at')
@@ -79,7 +78,7 @@ class Receipt extends Resource
             BelongsTo::make(__('Patient'), 'receiver', Patient::class)
                 ->rules([
                     'required',
-                    'numeric'
+                    'numeric',
                 ])
                 ->searchable()
                 ->showCreateRelationButton()
@@ -90,7 +89,7 @@ class Receipt extends Resource
             Heading::make(__('Administrative area')),
 
             // Sub-Category
-            BelongsTo::make(__('Sub-Catalog'),'subcategory', Catalog::class)
+            BelongsTo::make(__('Sub-Catalog'), 'subcategory', Catalog::class)
                 ->help(__('Used to categorize income types.'))
                 ->default(70)
                 ->withoutTrashed(),
@@ -127,28 +126,25 @@ class Receipt extends Resource
             Date::make(__('Emitted at'), 'emitted_at')
                 ->rules(['required', 'date'])
                 ->default(now()->format('Y-m-d')),
-            // paid_at
-            Date::make(__('Paid at'), 'paid_at')
-                ->rules(['required', 'date'])
-                ->default(now()->format('Y-m-d')),
             // receiver
             BelongsTo::make(__('Patient'), 'receiver', Patient::class)
                 ->rules([
                     'required',
-                    'numeric'
+                    'numeric',
                 ])
-            ->searchable()
-            ->showCreateRelationButton()
-            ->withSubtitles(),
-
+                ->searchable()
+                ->showCreateRelationButton()
+                ->withSubtitles(),
             Flexible::make(__('Payment distribution'), 'distribution')->preset(PaymentMethodPreset::class),
 
             Heading::make(__('Administrative area')),
             // Sub-Category
-            BelongsTo::make(__('Sub-Catalog'),'subcategory', Catalog::class)
+            Hidden::make('subcategory_attribute_id')->default(70),
+            BelongsTo::make(__('Sub-Catalog'), 'subcategory', Catalog::class)
                 ->help(__('Used to categorize income types.'))
                 ->default(70)
-                ->withoutTrashed(),
+                ->withoutTrashed()
+                ->onlyOnDetail(),
             // Payer
             BelongsTo::make(__('Payer'), 'payer', Patient::class)
                 ->help(__('The person who is paying.'))
@@ -156,46 +152,63 @@ class Receipt extends Resource
                 ->searchable()
                 ->showCreateRelationButton()
                 ->withSubtitles(),
+            // Paid at
+            Date::make(__('Paid at'), 'paid_at')
+                ->rules(['required', 'date'])
+                ->default(now()->format('Y-m-d')),
 
         ];
     }
 
-    public function fieldsForDetail() {
+    public function fieldsForDetail()
+    {
         return [
-            // Sequence
-            Text::make(__('Code'), 'sequence_value'),
-            Text::make(__('Number'), 'sequence_number'),
-            BelongsTo::make(__('Emitted by'), 'author', User::class)->viewable(false),
-            // emitted_at
-            Date::make(__('Emitted at'), 'emitted_at')->format('dddd D, MMMM YYYY'),
-            // paid_at
-            Date::make(__('Paid at'), 'paid_at')->format('dddd D, MMMM YYYY'),
-            // receiver
-            BelongsTo::make(__('Patient'), 'receiver', Patient::class),
+            (new Tabs($this->resource->code, [
+                __('Receipt') => [
+                    Number::make(__('Total paid'), 'total')->displayUsing(fn($value) => number_format($value)),
+                    Number::make(__('Pending'), 'balance')->displayUsing(fn($value) => number_format($value)),
+                    Heading::make(__('Details')),
+                    // Sequence
+                    Text::make(__('Code'), 'sequence_value'),
+                    Text::make(__('Number'), 'sequence_number'),
+                    BelongsTo::make(__('Emitted by'), 'author', User::class)->viewable(false),
+                    // emitted_at
+                    Date::make(__('Emitted at'), 'emitted_at')->format('dddd D, MMMM YYYY'),
+                    // paid_at
+                    Date::make(__('Paid at'), 'paid_at')->format('dddd D, MMMM YYYY'),
+                    // receiver
+                    BelongsTo::make(__('Patient'), 'receiver', Patient::class),
 
-            Heading::make(__('Administrative area')),
-            // Sub-Category
-            BelongsTo::make(__('Sub-Catalog'),'subcategory', Catalog::class)->viewable(false),
-            // Payer
-            BelongsTo::make(__('Payer'), 'payer', Patient::class)->viewable(false),
-            // Payment distribution
-            Flexible::make(__('Payment distribution'), 'distribution')->preset(PaymentMethodPreset::class),
+                    Heading::make(__('Administrative area')),
+                    // Sub-Category
+                    BelongsTo::make(__('Sub-Catalog'), 'subcategory', Catalog::class)->viewable(false),
+                    // Payer
+                    BelongsTo::make(__('Payer'), 'payer', Patient::class)->viewable(false),
+                ],
+                __('Distribution') => [
+                    // Payment distribution
+                    Flexible::make(__('Payment distribution'), 'distribution')->preset(PaymentMethodPreset::class),
+                ]
+            ]))->withToolbar()->defaultSearch(false),
+
+
         ];
     }
 
-    public function fieldsForIndex() {
+    public function fieldsForIndex()
+    {
         return [
             Text::make(__('Number'), 'sequence_number'),
             Date::make(__('Paid at'), 'paid_at')->format('dddd D, MMMM YYYY'),
             BelongsTo::make(__('Patient'), 'receiver', Patient::class)->viewable(false),
-            Number::make(__('Amount paid'), 'amount_paid')->displayUsing(fn($value)=>number_format($value)),
+            Number::make(__('Amount paid'), 'amount_paid')->displayUsing(fn($value) => number_format($value)),
         ];
     }
 
     public function fields(Request $request)
     {
         return [
-            BelongsTo::make(__('Sub-Catalog'),'subcategory', Catalog::class)->onlyOnDetail(),
+            BelongsTo::make(__('Sub-Catalog'), 'subcategory', Catalog::class)->onlyOnDetail(),
             BelongsTo::make(__('Patient'), 'receiver', Patient::class),
             BelongsTo::make(__('Payer'), 'payer', Patient::class),
         ];
@@ -205,16 +218,16 @@ class Receipt extends Resource
     {
         return [
             (new ReceiptsIncomeByPeriod())->defaultRange('TODAY'),
-            (new DocumentSummaryCard())->field('total')->label('Total')->onlyOnDetail(),
-            (new DocumentSummaryCard())->field('change')->label('Change amount')->onlyOnDetail(),
-            (new DocumentSummaryCard())->field('balance')->label('Pending')->onlyOnDetail(),
+//            (new DocumentSummaryCard())->field('total')->label('Total')->onlyOnDetail()->width('1/2'),
+//            (new DocumentSummaryCard())->field('change')->label('Change amount')->onlyOnDetail(),
+//            (new DocumentSummaryCard())->field('balance')->label('Pending')->onlyOnDetail(),
         ];
     }
 
     public function actions(Request $request)
     {
         return [
-          DocumentPrintAction::make()->showOnTableRow()->showOnDetail()->withoutConfirmation(),
+            DocumentPrintAction::make()->showOnTableRow()->showOnDetail()->withoutConfirmation(),
         ];
     }
 }

@@ -84,6 +84,7 @@ class PaymentMethodResolver implements ResolverInterface
                     'document_id'              => $receipt->id,
                     'product_id'               => $product?->id,
                     'price'                    => $product?->price ?? $item->getAttribute('amount_paid'),
+                    'balance'                  => $item->getAttribute('balance'),
                     'title'                    => $item->getAttribute('title'),
                     'quantity'                 => $item->getAttribute('quantity') ?? 1,
                     'description'              => $item->getAttribute('description'),

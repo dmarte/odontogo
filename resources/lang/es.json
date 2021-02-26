@@ -241,7 +241,7 @@
     "Cash": "Efectivo",
     "Credit card": "Tarjeta de crédito",
     "Check": "Cheque",
-    "Bank transfer": "Transferencia bancaria",
+    "Bank_transfer": "Transferencia bancaria",
     "The procedure that is being paid.": "El procedimiento que se está pagando.",
     "Please indicate the doctor that completes the procedure to be paid.": "Por favor indique el doctor que realizó el procedimiento que se está pagando.",
     "New resource": "Nuevo :resource",
@@ -308,5 +308,6 @@
     "Total paid": "Pagado",
     "Paid": "Pagado",
     "of": "de",
-    "Page": "Página"
+    "Page": "Página",
+    "Total payment amount": "Total pagado"
 }

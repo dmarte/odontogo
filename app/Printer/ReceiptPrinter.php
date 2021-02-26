@@ -60,19 +60,19 @@ class ReceiptPrinter extends Printer
 
         $model->items->each(function (Item $item) {
             $this->addItem(
-                item: "{$item->product->code} - {$item->product->name}",
+                item: $item->product ? "{$item->product->code} - {$item->product->name}" : $item->title,
                 description: join("\n" , array_filter([
                 __('Payment method'). ': '. __(ucfirst($item->data['method'])),
                 !empty($item->data['confirmation_number']) ? __('Confirmation') . ': ' . $item->data['confirmation_number'] : null,
                 !empty($item->data['credit_card_last_digits']) ? __('Card') . ': ' . $item->data['credit_card_last_digits'] : null,
-                __('Price') . ': ' . number_format($item->product->price),
-                __('Quantity') . ': ' . number_format((float)$item->quantity),
+                $item->product ? __('Price') . ': ' . number_format($item->product->price) : null,
+                $item->product ? __('Quantity') . ': ' . number_format((float)$item->quantity) : null,
                 $item->discount > 0 ? __('Discounts') . ': ' . number_format($item->discounts) : null,
             ])),
                 quantity: false,
                 vat: false,
                 price: $item->total,
-                discount: $item->amount_paid,
+                discount: false,
                 total: $item->balance,
             );
 
@@ -85,9 +85,9 @@ class ReceiptPrinter extends Printer
             );
         }
 
-        $this->addTotal(__('Amount to pay'), $model->total);
-        $this->addTotal(__('Amount paid'), $model->amount_paid);
-        $this->addTotal(__('Change amount'), $model->change, true);
+//        $this->addTotal(__('Amount to pay'), $model->total);
+        $this->addTotal(__('Amount paid'), $model->total);
+        $this->addTotal(__('Pending'), $model->balance, true);
 
         $this->addCustomHeader(__('Created by'), $model->author->name);
         $this->addCustomHeader(__('Printed at'), now()->setTimezone(auth()->user()->time_zone)->format('d/m/Y h:i A'));

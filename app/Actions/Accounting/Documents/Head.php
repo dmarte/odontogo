@@ -6,10 +6,8 @@ use App\Actions\Accounting\Interfaces\Summarizable;
 use App\Actions\Accounting\Traits\HasDocumentSharedData;
 use App\Models\Contact;
 use App\Models\Document;
-use App\Models\Receipt;
 use App\Models\Sequence;
 use App\Models\Team;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -100,6 +98,7 @@ class Head extends Model implements Summarizable
         'completed'          => 'boolean',
         'cancelled'          => 'boolean',
         'verified'           => 'boolean',
+        'data'               => 'array',
         'emitted_at'         => 'date:Y-m-d',
         'expire_at'          => 'date:Y-m-d',
         'paid_at'            => 'date:Y-m-d',
@@ -110,6 +109,7 @@ class Head extends Model implements Summarizable
     ];
 
     protected $fillable = [
+        'data',
         'kind',
         'sequence_id',
         'sequence_prefix',
@@ -206,7 +206,7 @@ class Head extends Model implements Summarizable
         ];
 
         if (in_array($this->kind, $ignore, true)) {
-            return ;
+            return;
         }
 
         $sequence = is_null($this->sequence_id) ? $this->receiver->sequence : $this->sequence;

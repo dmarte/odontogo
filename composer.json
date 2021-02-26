@@ -10,6 +10,7 @@
     "require": {
         "php": "^7.3|^8.0",
         "bessamu/ajax-multiselect-nova-field": "^1.1",
+        "cloudcake/nova-fixed-bars": "^1.1",
         "digital-creative/conditional-container": "^1.2",
         "dillingham/nova-button": "^1.0",
         "dniccum/phone-number": "^1.1",
