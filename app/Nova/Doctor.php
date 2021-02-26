@@ -256,8 +256,8 @@ class Doctor extends Resource
         return [
             (new DoctorReportPrintAction())
                 ->onlyOnDetail()
+                ->withoutConfirmation()
                 ->confirmButtonText(__('Print Report'))
-                ->availableForEntireResource(true)
         ];
     }
 }
