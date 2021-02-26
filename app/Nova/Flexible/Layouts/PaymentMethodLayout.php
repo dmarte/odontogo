@@ -3,9 +3,6 @@
 namespace App\Nova\Flexible\Layouts;
 
 use App\Models\Document;
-use Epartment\NovaDependencyContainer\NovaDependencyContainer;
-use Laravel\Nova\Fields\Currency;
-use Laravel\Nova\Fields\Heading;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
@@ -25,7 +22,6 @@ class PaymentMethodLayout extends Layout
     public function fields()
     {
         return [
-//            Heading::make(__('Payment information')),
             Number::make(__('Payment amount'), 'amount_paid')
                 ->rules([
                     'required',
@@ -48,16 +44,24 @@ class PaymentMethodLayout extends Layout
                 ->help(__('Only if applicable')),
             Number::make(__('Last 4 digits'), 'data.credit_card_last_digits')
                 ->help(__('When is a credit card.')),
-//            Heading::make(__('Procedure information')),
             Select::make(__('Procedure'), 'product_id')
-                ->nullable()
+                ->rules([
+                    'required',
+                    'numeric',
+                ])
                 ->searchable()
                 ->options(function () {
                     return request()->user()->team->products->mapWithKeys(fn($product
                     ) => [$product->getKey() => "{$product->name} - ".number_format($product->price)]);
                 })
                 ->displayUsingLabels(),
-            Number::make(__('Quantity'), 'quantity')->default(1),
+            Number::make(__('Quantity'), 'quantity')
+                ->default(1)
+                ->rules([
+                    'required',
+                    'numeric',
+                    'min:1',
+                ]),
             Select::make(__('Doctor'), 'provider_contact_id')
                 ->rules([
                     'required',

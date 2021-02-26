@@ -144,11 +144,11 @@ class Doctor extends Resource
                 Text::make(__("Name"), 'tax_payer_name')->hideWhenUpdating(),
                 Text::make(__("{$country}_identification_number"), 'tax_payer_number')->hideWhenCreating(),
             ]),
-            Text::make(__("Name"), 'tax_payer_name')
+            Text::make(__("{$country}_tax_payer_name"), 'tax_payer_name')
                 ->help(__('The name as shown on the identification card.'))
                 ->rules(['required'])
                 ->hideFromIndex(),
-            Text::make(__("{$country}_identification_number"), 'tax_payer_number')
+            Text::make(__("{$country}_identification_number"), 'identification_number')
                 ->creationRules(['required', Rule::unique('contacts', 'tax_payer_number')->where('team_id', $team->id)])
                 ->hideFromIndex()
                 ->rules(['required_with:tax_payer_name']),

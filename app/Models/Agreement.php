@@ -22,6 +22,14 @@ class Agreement extends Model
         'used_after_expenses',
     ];
 
+    protected static function booted()
+    {
+        parent::booted();
+        static::creating(function(Agreement $agreement){
+            $agreement->title = "{$agreement->model->name} - {$agreement->unit_representation}";
+        });
+    }
+
     public function model()
     {
         return $this->morphTo();

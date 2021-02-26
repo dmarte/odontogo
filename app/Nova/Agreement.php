@@ -11,6 +11,7 @@ use Laravel\Nova\Fields\MorphTo;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Agreement extends Resource
 {
@@ -36,10 +37,14 @@ class Agreement extends Resource
         return __('Agreements');
     }
 
+    public static function redirectAfterCreate(NovaRequest $request, $resource)
+    {
+        return '/resources/'.Doctor::uriKey().'/'.$resource->model_id . '?tab=' . __('Agreement');
+    }
+
     public function fields(Request $request)
     {
         return [
-            Text::make(__('Name'),'title')->rules(['required'])->help(__('Please indicate the agreement name.')),
             BelongsTo::make(__('Source'), 'source', Source::class)->nullable()->withoutTrashed()->searchable()->showCreateRelationButton(),
             BelongsTo::make(__('Insurance'), 'insurance', Insurances::class)->nullable()->withoutTrashed()->searchable()->showCreateRelationButton(),
             MorphTo::make(__('Entity'), 'model')->hideWhenUpdating()->hideWhenCreating(),
@@ -57,9 +62,9 @@ class Agreement extends Resource
             ])
             ->default('percent')
             ->displayUsingLabels(),
-            Boolean::make(__('Used after expenses?'),'used_after_expenses')
-                ->help(__('Mark this checkbox if this agreement should be calculated after reduce operation expenses.'))
-                ->default(true)->hideFromIndex(),
+//            Boolean::make(__('Used after expenses?'),'used_after_expenses')
+//                ->help(__('Mark this checkbox if this agreement should be calculated after reduce operation expenses.'))
+//                ->default(true)->hideFromIndex(),
         ];
     }
 

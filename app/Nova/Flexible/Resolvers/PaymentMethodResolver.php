@@ -65,46 +65,42 @@ class PaymentMethodResolver implements ResolverInterface
                 ->whereIn('id', $groups->pluck('product_id'))
                 ->get();
 
-            $items = $groups
-                ->map(function (Layout $item) use ($receipt, $products) {
-                    /** @var \App\Models\Product $product */
-                    $product = $products->firstWhere('id', $item->getAttribute('product_id'));
+            $items = $groups->map(function (Layout $item) use ($receipt, $products) {
+                /** @var \App\Models\Product $product */
+                $product = $products->firstWhere('id', $item->getAttribute('product_id'));
 
-                    if (!$product) {
-                        return null;
+                $data['kind'] = $this->kind;
+
+                foreach ($item->toArray() as $key => $value) {
+                    if (!str_starts_with($key, 'data.')) {
+                        continue;
                     }
+                    $data[str_replace('data.', '', $key)] = $value;
+                }
 
-                    $data['kind'] = $this->kind;
-
-                    foreach ($item->toArray() as $key => $value) {
-                        if (!str_starts_with($key, 'data.')) {
-                            continue;
-                        }
-                        $data[str_replace('data.', '', $key)] = $value;
-                    }
-
-                    return [
-                        'currency'                 => $receipt->currency,
-                        'data'                     => $data,
-                        'document_id'              => $receipt->id,
-                        'product_id'               => $product->id,
-                        'price'                    => $product->price,
-                        'quantity'                 => $item->getAttribute('quantity') ?? 0,
-                        'description'              => $item->getAttribute('description'),
-                        'discount_rate'            => $item->getAttribute('discount_rate') ?? 0,
-                        'amount_paid'              => $item->getAttribute('amount_paid') ?? 0,
-                        'wallet_attribute_id'      => $item->getAttribute('wallet_attribute_id'),
-                        'expire_at'                => $receipt->expire_at,
-                        'emitted_at'               => $receipt->emitted_at,
-                        'team_id'                  => $receipt->team_id,
-                        'category_attribute_id'    => $receipt->category_attribute_id,
-                        'subcategory_attribute_id' => $receipt->subcategory_attribute_id,
-                        'provider_contact_id'      => $item->getAttribute('provider_contact_id') ?? $receipt->provider_contact_id,
-                        'receiver_contact_id'      => $receipt->receiver_contact_id,
-                        'author_user_id'           => $receipt->author_user_id,
-                        'completed_by_user_id'     => $receipt->completed_by_user_id,
-                    ];
-                })
+                return [
+                    'currency'                 => $receipt->currency,
+                    'data'                     => $data,
+                    'document_id'              => $receipt->id,
+                    'product_id'               => $product?->id,
+                    'price'                    => $product?->price ?? $item->getAttribute('amount_paid'),
+                    'title'                    => $item->getAttribute('title'),
+                    'quantity'                 => $item->getAttribute('quantity') ?? 1,
+                    'description'              => $item->getAttribute('description'),
+                    'discount_rate'            => $item->getAttribute('discount_rate') ?? 0,
+                    'amount_paid'              => $item->getAttribute('amount_paid') ?? 0,
+                    'wallet_attribute_id'      => $item->getAttribute('wallet_attribute_id'),
+                    'expire_at'                => $receipt->expire_at,
+                    'emitted_at'               => $receipt->emitted_at,
+                    'team_id'                  => $receipt->team_id,
+                    'category_attribute_id'    => $receipt->category_attribute_id,
+                    'subcategory_attribute_id' => $receipt->subcategory_attribute_id,
+                    'provider_contact_id'      => $item->getAttribute('provider_contact_id') ?? $receipt->provider_contact_id,
+                    'receiver_contact_id'      => $receipt->receiver_contact_id,
+                    'author_user_id'           => $receipt->author_user_id,
+                    'completed_by_user_id'     => $receipt->completed_by_user_id,
+                ];
+            })
                 ->filter(fn($value) => !is_null($value));
 
             $receipt->items()->delete();
