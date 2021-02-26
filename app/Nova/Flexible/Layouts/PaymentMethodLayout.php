@@ -39,11 +39,10 @@ class PaymentMethodLayout extends Layout
                         'credit_card'   => __('Credit card'),
                         'credit_note'   => __('Credit note'),
                     ];
-                })->displayUsingLabels(),
-            Text::make(__('Confirmation number or check'), 'data.confirmation_number')
-                ->help(__('Only if applicable')),
-            Number::make(__('Last 4 digits'), 'data.credit_card_last_digits')
-                ->help(__('When is a credit card.')),
+                })
+                ->displayUsingLabels(),
+            Text::make(__('Confirmation number or check'), 'data.confirmation_number')->help(__('Only if applicable')),
+            Number::make(__('Last 4 digits'), 'data.credit_card_last_digits')->help(__('When is a credit card.')),
             Select::make(__('Procedure'), 'product_id')
                 ->rules([
                     'required',

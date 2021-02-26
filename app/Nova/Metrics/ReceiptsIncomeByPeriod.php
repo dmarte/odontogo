@@ -37,6 +37,8 @@ class ReceiptsIncomeByPeriod extends Value
         ];
     }
 
+
+
     /**
      * Determine for how many minutes the metric should be cached.
      *

@@ -176,7 +176,13 @@ class Child extends Model implements Summarizable
 
     public function summarizedBalance(): float|int
     {
-        return $this->summarizedTotal() - $this->summarizedAmountPaid();
+        $total = $this->summarizedTotal() - $this->summarizedAmountPaid();
+
+        if($total < 0) {
+            return 0;
+        }
+
+        return $total;
     }
 
     public function summarizedTotal(): float|int
@@ -241,14 +247,15 @@ class Child extends Model implements Summarizable
         return (float) $this->getAttributeValue('amount_paid');
     }
 
-    public function pay(float $amount): static
-    {
-        $this->change = $this->calculateAmountCashBack($amount);
-        $this->amount_paid += $this->calculateAmountToPay($amount);
+    public function summarizedChange(): float|int  {
 
-        $this->summarize();
+        if ($this->summarizedAmountPaid() > $this->summarizedTotal()) {
 
-        return $this;
+            return $this->summarizedAmountPaid() - $this->summarizedTotal();
+
+        }
+
+        return 0;
     }
 
     public function calculateAmountCashBack(float $amount): float

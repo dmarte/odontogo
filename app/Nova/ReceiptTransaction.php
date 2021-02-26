@@ -30,8 +30,24 @@ class ReceiptTransaction extends Resource
 
     public static function authorizedToCreate(Request $request)
     {
-        $resource = explode('/', $request->route('view'))[1] ?? $request->get('viaResource');
+        return false;
+//        $resource = explode('/', $request->route('view'))[1] ?? $request->get('viaResource');
 
-        return ($resource === Receipt::uriKey());
+//        return ($resource === Receipt::uriKey());
+    }
+
+    public function authorizedToView(Request $request)
+    {
+        return false;
+    }
+
+    public function authorizedToUpdate(Request $request)
+    {
+        return false;
+    }
+
+    public function authorizedToDelete(Request $request)
+    {
+        return false;
     }
 }

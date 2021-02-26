@@ -192,79 +192,11 @@ class Head extends Model implements Summarizable
             }
         });
 
-        parent::booted();
     }
 
     public function getForeignKey()
     {
         return 'document_id';
-    }
-
-    public function distribute(User $author, Team $team, array $payments = [], ?int $paidByContactId = null)
-    {
-        // Create the receipt document type related to this document.
-        $sequence = $team->sequenceForReceipt();
-
-        /* @var $receipt Receipt */
-        $receipt = Receipt::create([
-            'currency'                 => $this->currency,
-            'sequence_id'              => $sequence->id,
-            'team_id'                  => $team->id,
-            'category_attribute_id'    => $this->category_attribute_id,
-            'subcategory_attribute_id' => $this->subcategory_attribute_id,
-            'provider_contact_id'      => $this->provider_contact_id,
-            'receiver_contact_id'      => $this->receiver_contact_id,
-            'paid_by_contact_id'       => $paidByContactId ?? $this->receiver_contact_id,
-            'author_user_id'           => $author->id,
-            'completed_by_user_id'     => $author->id,
-            'updated_by_user_id'       => $author->id,
-            'emitted_at'               => now()->format('Y-m-d'),
-            'expire_at'                => now()->format('Y-m-d'),
-            'paid_at'                  => now()->format('Y-m-d'),
-            'quantity'                 => 0,
-            'price'                    => 0,
-            'amount_paid'              => 0,
-        ]);
-
-        foreach ($payments as $payment) {
-
-            if ($payment['value'] < 1) {
-                continue;
-            }
-
-            $receipt->items()->create([
-                'data'                     => $payment,
-                'product_id'               => null,
-                'currency'                 => $receipt->currency,
-                'quantity'                 => 1,
-                'price'                    => $payment['value'],
-                'amount_paid'              => $payment['value'],
-                'team_id'                  => $receipt->team_id,
-                'category_attribute_id'    => $receipt->category_attribute_id,
-                'subcategory_attribute_id' => $receipt->subcategory_attribute_id,
-                'provider_contact_id'      => $receipt->provider_contact_id,
-                'receiver_contact_id'      => $receipt->receiver_contact_id,
-                'paid_by_contact_id'       => $receipt->paid_by_contact_id,
-                'author_user_id'           => $author->id,
-                'completed_by_user_id'     => $author->id,
-                'updated_by_user_id'       => $author->id,
-            ]);
-
-            $items = $this->items->filter(fn(Child $item) => !$item->paid);
-
-            /* @var $item Child */
-            foreach ($items as $item) {
-                $item->pay($payment['value'] ?? 0)->save();
-            }
-        }
-
-        $this->summarize()->save();
-
-        $receipt
-            ->summarize()
-            ->save();
-
-        $this->related()->attach($receipt->id);
     }
 
     public function buildSequence(): void
@@ -298,7 +230,6 @@ class Head extends Model implements Summarizable
         $this->title = $this->title();
     }
 
-
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
@@ -323,7 +254,6 @@ class Head extends Model implements Summarizable
     {
         return $this->summary('quantity');
     }
-
 
     public function summarizedPrice(): float|int
     {

@@ -201,18 +201,13 @@ class Receipt extends Resource
         ];
     }
 
-    public static function softDeletes()
-    {
-        return false;
-    }
-
     public function cards(Request $request)
     {
         return [
-            (new ReceiptsIncomeByPeriod())->defaultRange('MTD'),
+            (new ReceiptsIncomeByPeriod())->defaultRange('TODAY'),
             (new DocumentSummaryCard())->field('total')->label('Total')->onlyOnDetail(),
             (new DocumentSummaryCard())->field('change')->label('Change amount')->onlyOnDetail(),
-            (new DocumentSummaryCard())->field('balance')->label('Balance')->onlyOnDetail(),
+            (new DocumentSummaryCard())->field('balance')->label('Pending')->onlyOnDetail(),
         ];
     }
 
