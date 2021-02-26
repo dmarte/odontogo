@@ -266,6 +266,7 @@
     "Indicate if this procedure is approved by the customer to be executed.": "Indica si el procedimiento ha sido aprobado para ejecutarse por el paciente.",
     "Budget number": "Número de presupuesto",
     "Budget detail": "Detalle del presupuesto",
+    "Report": "Reporte",
     "Created by": "Creado por",
     "Document type": "Tipo de documento",
     "Document": "Documento",

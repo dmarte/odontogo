@@ -13,6 +13,7 @@ use Illuminate\Validation\Rule;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Country;
 use Laravel\Nova\Fields\HasMany;
+use Laravel\Nova\Fields\Heading;
 use Laravel\Nova\Fields\Hidden;
 use Laravel\Nova\Fields\MorphMany;
 use Laravel\Nova\Fields\MorphToMany;
@@ -66,8 +67,10 @@ class Doctor extends Resource
                     Text::make(__('Code'), 'code')->hideWhenCreating()->hideWhenUpdating(),
                     Hidden::make('kind')->onlyOnForms()->default(self::KIND),
                     Hidden::make('team_id')->showOnCreating()->default($request->user()->team->id),
-                    new Panel(__('Doctor information'), $this->getFiscalFields($request->user())),
-                    new Panel(__('Address'), $this->getAddressFields($request->user())),
+                    Heading::make(__('Doctor information')),
+                    ...$this->getFiscalFields($request->user()),
+                    Heading::make(__('Address')),
+                    ...$this->getAddressFields($request->user()),
                 ],
                 __('Agreements') => [
                     HasMany::make(__('Agreements'), 'agreements', Agreement::class),
@@ -77,9 +80,11 @@ class Doctor extends Resource
                 ],
                 __('Expenses') => [
                     HasMany::make(__('Expenses'), 'expenses', ExpenseTransaction::class)
+                ],
+                __('Report') => [
+                    HasMany::make(__('Doctor Report'), 'report', DoctorReport::class)
                 ]
             ])->defaultSearch(true)->withToolbar(),
-//            new Panel(__('Credit information'), $this->getCreditFields($request->user())),
         ];
     }
 
