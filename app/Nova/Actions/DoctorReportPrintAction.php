@@ -2,14 +2,14 @@
 
 namespace App\Nova\Actions;
 
-use App\Models\Doctor;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Collection;
 use Laravel\Nova\Actions\Action;
 use Laravel\Nova\Fields\ActionFields;
-use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Fields\Hidden;
+use Techouse\IntlDateTime\IntlDateTime;
 
 class DoctorReportPrintAction extends Action
 {
@@ -23,7 +23,9 @@ class DoctorReportPrintAction extends Action
 
     public function handle(ActionFields $fields, Collection $models)
     {
-
+        $from = now()->setTimestamp(strtotime($fields->from))->format('Y-m-d');
+        $to = now()->setTimestamp(strtotime($fields->to))->format('Y-m-d');
+        return Action::openInNewTab(route('print.doctor_report', $fields->resource) . "?from={$from}&to={$to}");
     }
 
     /**
@@ -34,19 +36,23 @@ class DoctorReportPrintAction extends Action
     public function fields()
     {
         return [
-//            Hidden::make('id')->default(request()->get('resourceId')),
-            Date::make(__('Date from'), 'from')
+            Hidden::make('resource')->default(request()->get('resourceId')),
+            IntlDateTime::make(__('Date from'), 'from')
                 ->rules([
                     'required',
-                    'date',
                     'before_or_equal:'.now()->format('Y-m-d'),
-                ]),
-            Date::make(__('Date to'), 'to')
+                ])
+                ->userTimeZone('UTC')
+                ->hideUserTimeZone()
+                ->default(now()->firstOfMonth(Carbon::MONDAY)->format('Y-m-d')),
+            IntlDateTime::make(__('Date to'), 'to')
                 ->rules([
                     'required',
-                    'date',
                     'before_or_equal:'.now()->format('Y-m-d'),
-                ]),
+                ])
+                ->userTimeZone('UTC')
+                ->hideUserTimeZone()
+                ->default(now()->format('Y-m-d')),
         ];
     }
 }
