@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class Doctor
@@ -73,16 +74,24 @@ class Doctor extends Contact
                  'source'=> Source::select('name')->whereColumn('attributes.id', 'agreements.source_attribute_id')
             ])
             ->join('agreements','agreements.model_id', 'documents_items.provider_contact_id')
-            ->join('attributes','attributes.id','agreements.source_attribute_id')
             ->where('agreements.model_type', $this->getMorphClass())
-            ->whereNotNull('agreements.source_attribute_id')
+//            ->whereNotNull('agreements.source_attribute_id')
             ->where(function(Builder $query){
                 $query->where('documents_items.data->kind', Document::KIND_EXPENSE)
                     ->orWhere('documents_items.data->kind', Document::KIND_PAYMENT_RECEIPT);
             })
             ->whereHas('receiver', function (Builder $query) {
-                $query->whereRaw('`contacts`.`source_attribute_id` = `agreements`.`source_attribute_id`');
+                $query->whereColumn('contacts.source_attribute_id','agreements.source_attribute_id')
+                ->orWhereNull('agreements.source_attribute_id');
             })
             ->orderByDesc('documents_items.data->kind');
+    }
+
+    public function splits() {
+        return $this->morphMany(Split::class, 'model')->where('kind', Agreement::KIND_SPLIT);
+    }
+
+    public function taxes() {
+        return $this->morphMany(Vat::class, 'model')->where('kind', Agreement::KIND_VAT);
     }
 }

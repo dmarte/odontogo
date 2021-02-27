@@ -74,7 +74,10 @@ class Doctor extends Resource
                     ...$this->getAddressFields($request->user()),
                 ],
                 __('Agreements') => [
-                    HasMany::make(__('Agreements'), 'agreements', Agreement::class),
+                    HasMany::make(__('Agreements'), 'splits', DoctorSplit::class),
+                ],
+                __('Taxes') => [
+                    HasMany::make(__('Taxes'), 'taxes', DoctorVat::class),
                 ],
                 __('Incomes') => [
                     HasMany::make(__('Incomes'), 'incomes', ReceiptTransaction::class),

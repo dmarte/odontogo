@@ -2,6 +2,8 @@
 
 namespace App\Nova;
 
+use App\Models\Agreement;
+use App\Models\Split;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Boolean;
@@ -13,9 +15,9 @@ use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class Agreement extends Resource
+class DoctorSplit extends Resource
 {
-    public static $model = \App\Models\Agreement::class;
+    public static $model = Split::class;
     public static $title = 'name';
     public static $search = [];
     public static $displayInNavigation = false;
@@ -45,8 +47,10 @@ class Agreement extends Resource
     public function fields(Request $request)
     {
         return [
+            Hidden::make('unit_action')->onlyOnForms()->default(Agreement::ACTION_DECREASE),
+            Hidden::make('kind')->onlyOnForms()->default(Agreement::KIND_SPLIT),
             BelongsTo::make(__('Source'), 'source', Source::class)->nullable()->withoutTrashed()->searchable()->showCreateRelationButton(),
-            BelongsTo::make(__('Insurance'), 'insurance', Insurances::class)->nullable()->withoutTrashed()->searchable()->showCreateRelationButton(),
+//            BelongsTo::make(__('Insurance'), 'insurance', Insurances::class)->nullable()->withoutTrashed()->searchable()->showCreateRelationButton(),
             MorphTo::make(__('Entity'), 'model')->hideWhenUpdating()->hideWhenCreating(),
             Hidden::make('model_type')->default((new \App\Models\Doctor())->getMorphClass())->onlyOnForms()->rules(['required','in:doctor']),
             Hidden::make('model_id')->default($request->get('viaResourceId'))->onlyOnForms()->rules(['required','numeric']),
@@ -62,9 +66,6 @@ class Agreement extends Resource
             ])
             ->default('percent')
             ->displayUsingLabels(),
-//            Boolean::make(__('Used after expenses?'),'used_after_expenses')
-//                ->help(__('Mark this checkbox if this agreement should be calculated after reduce operation expenses.'))
-//                ->default(true)->hideFromIndex(),
         ];
     }
 

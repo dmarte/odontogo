@@ -10,23 +10,35 @@ class Agreement extends Model
 {
     use HasFactory;
 
+    public const KIND_SPLIT = 'split';
+    public const KIND_VAT = 'vat';
+
+    public const ACTION_INCREASE = 'increase';
+    public const ACTION_DECREASE = 'decrease';
+
+    protected $primaryKey = 'id';
+    protected $table = 'agreements';
     protected $casts = ['unit_value' => 'float', 'source_attribute_id' => 'int'];
     protected $fillable = [
         'title',
+        'kind',
         'model_type',
         'model_id',
         'source_attribute_id',
         'insurance_attribute_id',
         'unit_value',
         'unit_type',
+        'unit_action',
         'used_after_expenses',
     ];
 
     protected static function booted()
     {
         parent::booted();
-        static::creating(function(Agreement $agreement){
-            $agreement->title = "{$agreement->model->name} - {$agreement->unit_representation}";
+        static::creating(function (Agreement $agreement) {
+            if (is_null($agreement->title)) {
+                $agreement->title = "{$agreement->model->name} - {$agreement->unit_representation}";
+            }
         });
     }
 
@@ -51,6 +63,6 @@ class Agreement extends Model
             return "{$this->unit_value}%";
         }
 
-        return number_format($this->unit_value * -1).' (' . __('Agreement fix') . ')';
+        return number_format($this->unit_value * -1).' ('.__('Agreement fix').')';
     }
 }

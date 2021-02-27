@@ -4,6 +4,7 @@ namespace App\Nova;
 
 use App\Models\Item;
 use App\Nova\Actions\DoctorReportPrintAction;
+use App\Nova\Filters\FilterByTransactionsPeriod;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Date;
@@ -12,12 +13,15 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 
 class DoctorReport extends Resource
 {
+    public static $globalSearchResults = 100;
+    public static $relatableSearchResults = 100;
+    public static $scoutSearchResults = 100;
+    public static $perPageViaRelationship = 100;
     public static $globallySearchable = false;
     public static $searchable = false;
     public static $displayInNavigation = false;
-    public static $relatableSearchResults = 100;
     public static $tableStyle = 'tight';
-    public static $perPageOptions = [100];
+    public static $perPageOptions = [50, 100];
     public static $model = Item::class;
     public static $title = 'id';
     public static $search = [];
@@ -84,7 +88,7 @@ class DoctorReport extends Resource
 
                 return $this->source;
             }),
-            BelongsTo::make(__('Patient'), 'receiver', Patient::class)->viewable(false),
+            BelongsTo::make(__('Patient'), 'receiver', Patient::class),
             Text::make(__('Agreement'), function () {
                 $value = (float) $this->unit_value;
                 if ($this->unit_type === 'fix') {
@@ -106,6 +110,11 @@ class DoctorReport extends Resource
         ];
     }
 
+    public static function softDeletes()
+    {
+        return false;
+    }
+
     public function cards(Request $request)
     {
         return [];
@@ -113,6 +122,8 @@ class DoctorReport extends Resource
 
     public function filters(Request $request)
     {
-        return [];
+        return [
+            new FilterByTransactionsPeriod()
+        ];
     }
 }
