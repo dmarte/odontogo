@@ -165,8 +165,10 @@ class Receipt extends Resource
         return [
             (new Tabs($this->resource->code, [
                 __('Receipt') => [
-                    Number::make(__('Total paid'), 'total')->displayUsing(fn($value) => number_format($value)),
+                    Number::make(__('Total paid'), 'amount_paid')->displayUsing(fn($value) => number_format($value)),
                     Number::make(__('Pending'), 'balance')->displayUsing(fn($value) => number_format($value)),
+                    Number::make(__('Amount to pay'), 'total')->displayUsing(fn($value) => number_format($value)),
+                    Number::make(__('Procedures'), 'quantity')->displayUsing(fn($value) => number_format($value)),
                     Heading::make(__('Details')),
                     // Sequence
                     Text::make(__('Code'), 'sequence_value'),

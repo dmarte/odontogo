@@ -62,7 +62,7 @@ class ReceiptPrinter extends Printer
             $this->addItem(
                 item: $item->product ? "{$item->product->code} - {$item->product->name}" : $item->title,
                 description: join("\n" , array_filter([
-                __('Payment method'). ': '. __(ucfirst($item->data['method'])),
+                __('Payment method'). ': '. __(ucfirst(str_replace('_',' ', $item->data['method']))),
                 !empty($item->data['confirmation_number']) ? __('Confirmation') . ': ' . $item->data['confirmation_number'] : null,
                 !empty($item->data['credit_card_last_digits']) ? __('Card') . ': ' . $item->data['credit_card_last_digits'] : null,
                 $item->product ? __('Price') . ': ' . number_format($item->product->price) : null,

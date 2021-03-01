@@ -3,6 +3,7 @@
 namespace App\Nova\Flexible\Layouts;
 
 use App\Models\Document;
+use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
@@ -29,8 +30,7 @@ class PaymentMethodLayout extends Layout
                     'min:1',
                 ])
                 ->displayUsing(fn($value) => number_format((float) $value)),
-            Number::make(__('Pending'), 'balance')
-                ->default(0),
+//            Number::make(__('Pending'), 'balance')->default(0),
             Select::make(__('Payment method'), 'data.method')
                 ->default('cash')
                 ->options(function () {
@@ -44,9 +44,15 @@ class PaymentMethodLayout extends Layout
                 })
                 ->displayUsingLabels(),
             Text::make(__('Confirmation number or check'), 'data.confirmation_number')->help(__('Only if applicable')),
-            Text::make(__('Concept'), 'title')
-                ->help(__('When is a credit card.'))
-                ->rules(['required'])
+            Select::make(__('Procedure'), 'product_id')
+                ->nullable()
+                ->searchable()
+                ->options(function () {
+                    return request()->user()->team->products->mapWithKeys(fn($product) => [$product->getKey() => "{$product->name} - ".number_format($product->price)]);
+                })
+                ->displayUsingLabels(),
+            Number::make(__('Quantity'), 'quantity')->default(1),
+            Text::make(__('Concept'), 'title')->rules(['nullable'])
             ,
             Select::make(__('Doctor'), 'provider_contact_id')
                 ->rules([
