@@ -85,8 +85,8 @@ class ReceiptPrinter extends Printer
             );
         }
 
-//        $this->addTotal(__('Amount to pay'), $model->total);
-        $this->addTotal(__('Amount paid'), $model->total);
+        $this->addTotal(__('Amount to pay'), $model->total);
+        $this->addTotal(__('Amount paid'), $model->amount_paid);
         $this->addTotal(__('Pending'), $model->balance, true);
 
         $this->addCustomHeader(__('Created by'), $model->author->name);
