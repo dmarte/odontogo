@@ -4,31 +4,28 @@ namespace App\Nova;
 
 use App\Models\Document;
 use App\Nova\Actions\DocumentPrintAction;
-use App\Nova\Flexible\Presets\PaymentMethodPreset;
-use App\Nova\Metrics\DocumentSummaryCard;
 use App\Nova\Metrics\ReceiptsIncomeByPeriod;
 use Eminiarts\Tabs\Tabs;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Date;
+use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\Heading;
 use Laravel\Nova\Fields\Hidden;
 use Laravel\Nova\Fields\Number;
-use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Titasgailius\SearchRelations\SearchesRelations;
-use Whitecube\NovaFlexibleContent\Flexible;
 
 class Receipt extends Resource
 {
     use SearchesRelations;
 
     public static $tableStyle = 'tight';
+    public static $with = ['receiver'];
     public static $perPageOptions = [10, 25, 50, 75, 100];
     public static $preventFormAbandonment = true;
     public static $priority = 0;
     public static $model = \App\Models\Receipt::class;
-    public static $title = 'code';
     public static $search = [
         'code',
         'sequence_value',
@@ -43,9 +40,14 @@ class Receipt extends Resource
         'receiver' => ['name', 'code'],
     ];
 
+    public function title()
+    {
+        return "{$this->code} ($ ".number_format($this->amount_paid).")";
+    }
+
     public function subtitle()
     {
-        return $this->code;
+        return $this->receiver->name;
     }
 
     public static function group()
@@ -84,22 +86,32 @@ class Receipt extends Resource
                 ->showCreateRelationButton()
                 ->withSubtitles(),
 
-            Flexible::make(__('Payment distribution'), 'distribution')->preset(PaymentMethodPreset::class),
-
+            Heading::make(__('Payment gateway')),
+            Number::make(__('Cash'), 'data->amount->cash')
+                ->help(__('What is the amount paid in cash?'))
+                ->default(0)
+                ->rules(['required', 'numeric', 'min:0'])
+                ->min(0),
+            Number::make(__('Credit card'), 'data->amount->credit_card')
+                ->help(__('What is the amount paid with credit card?'))
+                ->default(0)
+                ->rules(['required', 'numeric', 'min:0'])
+                ->min(0),
+            Number::make(__('Bank transfer'), 'data->amount->bank_transfer')
+                ->help(__('What is the amount paid with bank transfer?'))
+                ->default(0)
+                ->rules(['required', 'numeric', 'min:0'])
+                ->min(0),
+            Number::make(__('Credit note'), 'data->amount->credit_note')
+                ->help(__('Set this field if a credit should be applied to this patient.'))
+                ->default(0)
+                ->rules(['required', 'numeric', 'min:0'])
+                ->min(0),
             Heading::make(__('Administrative area')),
-
-            // Sub-Category
-            BelongsTo::make(__('Sub-Catalog'), 'subcategory', Catalog::class)
-                ->help(__('Used to categorize income types.'))
-                ->default(70)
-                ->withoutTrashed(),
-            // Payer
-            BelongsTo::make(__('Payer'), 'payer', Patient::class)
-                ->help(__('The person who is paying.'))
-                ->nullable()
-                ->searchable()
-                ->showCreateRelationButton()
-                ->withSubtitles(),
+            Number::make(__('Credit card confirmation'), 'data->confirmation->credit_card')
+                ->rules(['nullable', 'numeric']),
+            Number::make(__('Bank transfer confirmation'), 'data->confirmation->bank_transfer')
+                ->rules(['nullable', 'numeric']),
         ];
     }
 
@@ -123,40 +135,45 @@ class Receipt extends Resource
             Hidden::make('completed_by_user_id')->default($request->user()->id),
             Hidden::make('updated_by_user_id')->default($request->user()->id),
             // emitted_at
-            Date::make(__('Emitted at'), 'emitted_at')
-                ->rules(['required', 'date'])
-                ->default(now()->format('Y-m-d')),
+            Date::make(__('Emitted at'), 'emitted_at')->rules(['required', 'date'])->default(now()->format('Y-m-d')),
+            // Paid at
+            Date::make(__('Paid at'), 'paid_at')->rules(['required', 'date'])->default(now()->format('Y-m-d')),
             // receiver
-            BelongsTo::make(__('Patient'), 'receiver', Patient::class)
-                ->rules([
-                    'required',
-                    'numeric',
-                ])
+            BelongsTo::make(__('Patient'), 'receiver', Patient::class)->rules([
+                'required',
+                'numeric',
+            ])
                 ->searchable()
                 ->showCreateRelationButton()
                 ->withSubtitles(),
-            Flexible::make(__('Payment distribution'), 'distribution')->preset(PaymentMethodPreset::class),
-
+            Number::make(__('Cash'), 'data->amount->cash')
+                ->help(__('What is the amount paid in cash?'))
+                ->default(0)
+                ->rules(['required', 'numeric', 'min:0'])
+                ->min(0),
+            Number::make(__('Credit card'), 'data->amount->credit_card')
+                ->help(__('What is the amount paid with credit card?'))
+                ->default(0)
+                ->rules(['required', 'numeric', 'min:0'])
+                ->min(0),
+            Number::make(__('Bank transfer'), 'data->amount->bank_transfer')
+                ->help(__('What is the amount paid with bank transfer?'))
+                ->default(0)
+                ->rules(['required', 'numeric', 'min:0'])
+                ->min(0),
+            Number::make(__('Credit note'), 'data->amount->credit_note')
+                ->help(__('Set this field if a credit should be applied to this patient.'))
+                ->default(0)
+                ->rules(['required', 'numeric', 'min:0'])
+                ->min(0),
             Heading::make(__('Administrative area')),
+            Number::make(__('Credit card confirmation'), 'data->confirmation->credit_card')
+                ->rules(['nullable', 'numeric']),
+            Number::make(__('Bank transfer confirmation'), 'data->confirmation->bank_transfer')
+                ->rules(['nullable', 'numeric']),
+
             // Sub-Category
             Hidden::make('subcategory_attribute_id')->default(70),
-            BelongsTo::make(__('Sub-Catalog'), 'subcategory', Catalog::class)
-                ->help(__('Used to categorize income types.'))
-                ->default(70)
-                ->withoutTrashed()
-                ->onlyOnDetail(),
-            // Payer
-            BelongsTo::make(__('Payer'), 'payer', Patient::class)
-                ->help(__('The person who is paying.'))
-                ->nullable()
-                ->searchable()
-                ->showCreateRelationButton()
-                ->withSubtitles(),
-            // Paid at
-            Date::make(__('Paid at'), 'paid_at')
-                ->rules(['required', 'date'])
-                ->default(now()->format('Y-m-d')),
-
         ];
     }
 
@@ -164,7 +181,7 @@ class Receipt extends Resource
     {
         return [
             (new Tabs($this->resource->code, [
-                __('Receipt') => [
+                __('Receipt')      => [
                     Number::make(__('Total paid'), 'amount_paid')->displayUsing(fn($value) => number_format($value))->default(0),
                     Number::make(__('Pending'), 'balance')->displayUsing(fn($value) => number_format($value)),
                     Number::make(__('Amount to pay'), 'total')->displayUsing(fn($value) => number_format($value)),
@@ -188,10 +205,11 @@ class Receipt extends Resource
                     BelongsTo::make(__('Payer'), 'payer', Patient::class)->viewable(false),
                 ],
                 __('Distribution') => [
-                    // Payment distribution
-                    Flexible::make(__('Payment distribution'), 'distribution')->preset(PaymentMethodPreset::class),
-                ]
-            ]))->withToolbar()->defaultSearch(false),
+                    HasMany::make(__('Transactions'), 'items', ReceiptTransaction::class),
+                ],
+            ]))
+                ->withToolbar()
+                ->defaultSearch(false),
 
 
         ];
@@ -213,6 +231,7 @@ class Receipt extends Resource
             BelongsTo::make(__('Sub-Catalog'), 'subcategory', Catalog::class)->onlyOnDetail(),
             BelongsTo::make(__('Patient'), 'receiver', Patient::class),
             BelongsTo::make(__('Payer'), 'payer', Patient::class),
+            HasMany::make(__('Transactions'), 'items', ReceiptTransaction::class),
         ];
     }
 

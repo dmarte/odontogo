@@ -107,10 +107,25 @@ class Child extends Model implements Summarizable
 
     public function sanitize(): void
     {
+        if(is_null($this->emitted_at)) {
+            $this->emitted_at = $this->document->emitted_at;
+        }
+
+        if (is_null($this->receiver_contact_id)) {
+            $this->receiver_contact_id = $this->document->receiver_contact_id;
+        }
+
+        $this->data = array_merge((array) $this->data, [
+            'kind' => $this->document->kind,
+        ]);
+
         $this->currency = $this->currency ?? $this->document->currency;
         $this->team_id = $this->document->team_id;
         if (is_null($this->price)) {
             $this->price = $this->product->price;
+        }
+        if ($this->quantity < 1) {
+            $this->quantity = 1;
         }
         $this->summarize();
     }

@@ -121,7 +121,6 @@ class Head extends Model implements Summarizable
         'code',
         'exchange_rate',
         'exchange_currency',
-
         'title',
         'description',
         'currency',

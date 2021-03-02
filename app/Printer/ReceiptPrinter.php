@@ -19,7 +19,7 @@ class ReceiptPrinter extends Printer
         $this->changeLanguageTerm('number', __('Code'));
         $this->changeLanguageTerm('date', __('Date'));
 //        $this->changeLanguageTerm('due', __('Expiration'));
-        $this->changeLanguageTerm('discount', __('Amount paid'));
+        $this->changeLanguageTerm('discount', __('Payment applied'));
         $this->changeLanguageTerm('price', __('Amount to pay'));
         $this->changeLanguageTerm('product', __('Concept'));
         $this->changeLanguageTerm('vat', __('Tax'));
@@ -28,7 +28,9 @@ class ReceiptPrinter extends Printer
         $this->changeLanguageTerm('page', __('Page'));
         $this->columnOpacity = 0;
 
-        $this->setLogo(Storage::disk($model->team->avatar_disk)->path($model->team->avatar_path));
+        if (Storage::disk($model->team->avatar_disk)->exists($model->team->avatar_path)) {
+            $this->setLogo(Storage::disk($model->team->avatar_disk)->path($model->team->avatar_path));
+        }
         $this->setFontSizeProductDescription(9);
         $this->setType($model->sequence->title);
         $this->setReference($model->sequence_value);
@@ -36,7 +38,7 @@ class ReceiptPrinter extends Printer
 //        $this->setDue($model->expire_at->format('d/m/Y'));
         $this->flipflop();
 
-        $this->addParagraph(__('The currency used in this document is :currency', ['currency'=>$model->currency]));
+        $this->addParagraph(__('The currency used in this document is :currency', ['currency' => $model->currency]));
 
         if ($this->model->description) {
             $this->addParagraph($model->description);
@@ -61,31 +63,42 @@ class ReceiptPrinter extends Printer
         $model->items->each(function (Item $item) {
             $this->addItem(
                 item: $item->product ? "{$item->product->code} - {$item->product->name}" : $item->title,
-                description: join("\n" , array_filter([
-                __('Payment method'). ': '. __(ucfirst(str_replace('_',' ', $item->data['method']))),
-                !empty($item->data['confirmation_number']) ? __('Confirmation') . ': ' . $item->data['confirmation_number'] : null,
-                !empty($item->data['credit_card_last_digits']) ? __('Card') . ': ' . $item->data['credit_card_last_digits'] : null,
-                $item->product ? __('Price') . ': ' . number_format($item->product->price) : null,
-                $item->product ? __('Quantity') . ': ' . number_format((float)$item->quantity) : null,
-                $item->discount > 0 ? __('Discounts') . ': ' . number_format($item->discounts) : null,
+                description: join("\n", array_filter([
+//                __('Payment method'). ': '. __(ucfirst(str_replace('_',' ', $item->data['method']))),
+                !empty($item->data['confirmation_number']) ? __('Confirmation').': '.$item->data['confirmation_number'] : null,
+                !empty($item->data['credit_card_last_digits']) ? __('Card').': '.$item->data['credit_card_last_digits'] : null,
+                $item->product ? __('Price').': '.number_format($item->product->price) : null,
+                $item->product ? __('Quantity').': '.number_format((float) $item->quantity) : null,
+                $item->discount > 0 ? __('Discounts').': '.number_format($item->discounts) : null,
             ])),
                 quantity: false,
                 vat: false,
                 price: $item->total,
-                discount: false,
+                discount: $item->amount_paid,
                 total: $item->balance,
             );
 
         });
 
-        if($this->model->paid) {
+        if ($this->model->paid) {
             $this->addBadge(
                 badge: __('Paid'),
                 color: $this->model->team->primary_color
             );
         }
-
-        $this->addTotal(__('Amount to pay'), $model->total);
+        if ($this->model->data['amount']['cash'] > 0) {
+            $this->addTotal(__('Cash'), $model->data['amount']['cash']);
+        }
+        if ($this->model->data['amount']['credit_card'] > 0) {
+            $this->addTotal(__('Credit card'), $model->data['amount']['credit_card']);
+        }
+        if ($this->model->data['amount']['bank_transfer'] > 0) {
+            $this->addTotal(__('Bank transfer'), $model->data['amount']['bank_transfer']);
+        }
+        if ($this->model->data['amount']['credit_note'] > 0) {
+            $this->addTotal(__('Credit note'), $model->data['amount']['credit_note']);
+        }
+        $this->addTotal(__('Total to pay'), $model->total);
         $this->addTotal(__('Amount paid'), $model->amount_paid);
         $this->addTotal(__('Pending'), $model->balance, true);
 

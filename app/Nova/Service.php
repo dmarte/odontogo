@@ -28,6 +28,10 @@ class Service extends Resource
         'code',
     ];
 
+    public function subtitle()
+    {
+        return '$ ' . number_format($this->price);
+    }
 
     public static function softDeletes()
     {
