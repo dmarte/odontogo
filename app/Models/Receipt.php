@@ -12,15 +12,21 @@ class Receipt extends Document
     {
         parent::booted();
 
-        static::addGlobalScope('team', fn(Builder $query) => $query->where('team_id', request()->user()->team->id));
+        $team = request()->user()->team;
+
+        static::addGlobalScope('team', fn(Builder $query) => $query->where('team_id', $team->id));
         static::addGlobalScope('kind', fn(Builder $query) => $query->where('kind', static::KIND_PAYMENT_RECEIPT));
 
-        static::creating(function (Receipt $receipt) {
+        static::creating(function (Receipt $receipt) use($team) {
 
             $receipt->calculateReceiptData();
 
             if (is_null($receipt->paid_by_contact_id)) {
                 $receipt->paid_by_contact_id = $receipt->receiver_contact_id;
+            }
+
+            if (is_null($receipt->wallet_attribute_id)) {
+                $receipt->wallet_attribute_id = $team->wallet_attribute_id;
             }
         });
 

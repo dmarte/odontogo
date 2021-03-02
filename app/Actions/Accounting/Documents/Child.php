@@ -107,6 +107,9 @@ class Child extends Model implements Summarizable
 
     public function sanitize(): void
     {
+        if (is_null($this->wallet_attribute_id)) {
+            $this->wallet_attribute_id = $this->document->wallet_attribute_id ?? $this->team->wallet_attribute_id;
+        }
         if(is_null($this->emitted_at)) {
             $this->emitted_at = $this->document->emitted_at;
         }

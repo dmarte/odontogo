@@ -8,6 +8,7 @@ use Dniccum\PhoneNumber\PhoneNumber;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Avatar;
+use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Country;
 use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\Hidden;
@@ -95,6 +96,11 @@ class Team extends Resource
                 ->squared(),
             Text::make(__(strtolower($request->user()->country)."_tax_payer_name"), 'name'),
             Text::make(__(strtolower($request->user()->country)."_tax_payer_number"), 'vat')->nullable(),
+            BelongsTo::make(__('Default wallet'), 'wallet', Wallet::class)
+                ->withoutTrashed()
+                ->showCreateRelationButton()
+                ->required()
+                ->rules(['required']),
             Timezone::make(__('Time zone'), 'time_zone'),
             Country::make(__('Country'), 'country'),
             Select::make(__('Currency'), 'currency')

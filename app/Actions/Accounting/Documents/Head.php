@@ -117,6 +117,7 @@ class Head extends Model implements Summarizable
         'sequence_number',
         'sequence_expire_at',
         'sequence_value',
+        'wallet_attribute_id',
         'counter',
         'code',
         'exchange_rate',

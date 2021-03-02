@@ -57,6 +57,11 @@ class Agreement extends Model
         return $this->belongsTo(Attribute::class, 'insurance_attribute_id');
     }
 
+    public function catalog(): BelongsTo
+    {
+        return $this->belongsTo(Catalog::class, 'catalog_attribute_id');
+    }
+
     protected function getUnitRepresentationAttribute()
     {
         if ($this->unit_type === 'percent') {

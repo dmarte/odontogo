@@ -52,15 +52,20 @@ class Team extends Model
         'phone_primary',
         'phone_secondary',
         'address_line_1',
+        'address_line_2',
         'email',
         'user_id',
         'country',
         'currency',
         'locale',
         'time_zone',
-        'address_line_2',
-        'primary_color'
+        'primary_color',
+        'wallet_attribute_id',
     ];
+
+    public function wallet() : BelongsTo {
+        return $this->belongsTo(Wallet::class, 'wallet_attribute_id');
+    }
 
     public function wallets() : HasMany {
         return $this->hasMany(Wallet::class);

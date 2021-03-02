@@ -134,6 +134,11 @@ class Receipt extends Resource
             Hidden::make('author_user_id')->default($request->user()->id),
             Hidden::make('completed_by_user_id')->default($request->user()->id),
             Hidden::make('updated_by_user_id')->default($request->user()->id),
+            BelongsTo::make(__('Wallet'), 'wallet', Wallet::class)
+                ->required()
+                ->withoutTrashed()
+                ->rules(['required'])
+                ->default($request->user()->team->wallet_attribute_id),
             // emitted_at
             Date::make(__('Emitted at'), 'emitted_at')->rules(['required', 'date'])->default(now()->format('Y-m-d')),
             // Paid at
@@ -228,6 +233,7 @@ class Receipt extends Resource
     public function fields(Request $request)
     {
         return [
+            BelongsTo::make(__('Wallet'), 'wallet', Wallet::class),
             BelongsTo::make(__('Sub-Catalog'), 'subcategory', Catalog::class)->onlyOnDetail(),
             BelongsTo::make(__('Patient'), 'receiver', Patient::class),
             BelongsTo::make(__('Payer'), 'payer', Patient::class),

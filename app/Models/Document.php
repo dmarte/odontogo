@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Actions\Accounting\Documents\Head;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Whitecube\NovaFlexibleContent\Concerns\HasFlexible;
 
@@ -13,7 +12,13 @@ class Document extends Head
     use HasFactory;
     use HasFlexible;
 
-    public function payer() {
+    public function wallet()
+    {
+        return $this->belongsTo(Wallet::class, 'wallet_attribute_id');
+    }
+
+    public function payer()
+    {
         return $this->belongsTo(Contact::class, 'paid_by_contact_id');
     }
 
