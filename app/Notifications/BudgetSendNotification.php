@@ -59,6 +59,13 @@ class BudgetSendNotification extends Notification
             ]);
         });
 
+        $mail
+            ->bcc($this->author->email, $this->author->name);
+
+        if($this->author->team->email) {
+            $mail->bcc($this->author->team->email, $this->author->team->name);
+        }
+
         return $mail;
     }
 

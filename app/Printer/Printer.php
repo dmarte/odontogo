@@ -413,7 +413,7 @@ abstract class Printer extends FPDF
 
     public function inline()
     {
-        return parent::render("{$this->model->code}.pdf", 'S');
+        return static::render("{$this->model->code}.pdf", 'S');
     }
 
     public function store(string $disk = 'public')
@@ -424,7 +424,7 @@ abstract class Printer extends FPDF
 
         Storage::disk($disk)->makeDirectory("{$this->model->team_id}/documents");
 
-        parent::render($path, 'F');
+        static::render($path, 'F');
 
         return $path;
     }
