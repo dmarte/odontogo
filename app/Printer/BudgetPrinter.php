@@ -26,7 +26,10 @@ class BudgetPrinter extends Printer
         $this->changeLanguageTerm('page', __('Page'));
         $this->columnOpacity = 0;
 
-        $this->setLogo(Storage::disk($model->team->avatar_disk)->path($model->team->avatar_path));
+        if (Storage::disk($model->team->avatar_disk)->exists($model->team->avatar_path)) {
+            $this->setLogo(Storage::disk($model->team->avatar_disk)->path($model->team->avatar_path));
+        }
+
 //        $this->setColor('#5e5e5e');
         $this->setFontSizeProductDescription(9);
         $this->setType($model->sequence->title);
@@ -74,7 +77,10 @@ class BudgetPrinter extends Printer
 
         $this->addCustomHeader(__('Created by'), $model->author->name);
         $this->addCustomHeader(__('Printed at'), now()->setTimezone(auth()->user()->time_zone)->format('d/m/Y h:i A'));
-        $this->addCustomHeader(__('Doctor'), $this->model->provider->name);
+
+        if ($this->model->provider) {
+            $this->addCustomHeader(__('Doctor'), $this->model?->provider?->name);
+        }
 
         $this->setFooternote($model->code);
     }
